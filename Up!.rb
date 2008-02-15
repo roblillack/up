@@ -206,14 +206,17 @@ class Up < NSWindowController
         if result.key? 'error' then
             alert.setMessageText('Error uploading file.')
             alert.setInformativeText(result['error'])
+            NSApp.requestUserAttention(NSCriticalRequest)
         elsif not result.key? 'url' then
             alert.setMessageText('Error uploading file.')
+            NSApp.requestUserAttention(NSCriticalRequest)
             alert.setInformativeText('No URL in server response.')
         else
             alert.setMessageText('File successfully uploaded.')
             alert.setInformativeText('The URL (' + result['url'] +
                                      ') has been copied to the clipboard.')
             copyUrlToPasteboard(result['url'])
+            NSApp.requestUserAttention(NSInformationalRequest)
         end
 		alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo(@mainWindow, self, "alertDidEnd:returnCode:contextInfo:", nil)
 	end
