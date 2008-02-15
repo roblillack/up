@@ -197,25 +197,10 @@ class Up < NSWindowController
         }
         # and start it
         @workerthread = Thread.new(work) {|w| doUploadWork(w)}
-        
-        # now, go check if it finished every 500ms
-        # count the checks: after 60s, we abort the upload
-        @workerchecks = 120
-        OSX::NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats(0.5, self, "checkUploadState:", nil, true)
     end
     
-    def checkUploadState(timer)
-        if @workerchecks <= 0 then
-            timer.invalidate
-        else
-            @workerchecks = @workerchecks - 1
-        end
-        
-        return if @workerthread.alive?
-        
-        timer.invalidate
-        result = @workerthread.value
-
+    def uploadingEnded(result)
+        result = result.to_ruby
 		alert = OSX::NSAlert.alloc.init
 		alert.addButtonWithTitle("OK")
         if result.key? 'error' then
@@ -236,11 +221,12 @@ class Up < NSWindowController
     def doUploadWork(work)
         begin
             client = XMLRPC::Client.new2(work[:url])
-            return client.call('metaWeblog.newMediaObject', work[:blogid], work[:username], work[:password],
-                               {'type' => 'image/jpeg', 'bits' => XMLRPC::Base64.new(work[:pictureData])})
+            result = client.call('metaWeblog.newMediaObject', work[:blogid], work[:username], work[:password],
+                                 {'type' => 'image/jpeg', 'bits' => XMLRPC::Base64.new(work[:pictureData])})
         rescue Exception => e
-            return { 'error' => e.message }
+            result = { 'error' => e.message }
         end
+        self.performSelectorOnMainThread_withObject_waitUntilDone("uploadingEnded:", result, false)
     end
     
     def copyUrlToPasteboard(url)
