@@ -174,9 +174,17 @@ class Up < NSWindowController
         newHeight = OSX::CGRectGetHeight(outputImage.extent)
         puts "real new Size: #{newWidth}x#{newHeight}"
         
-        jpegImage = OSX::NSBitmapImageRep.alloc.initWithCIImage(outputImage)
-        outputData = jpegImage.representationUsingType_properties(OSX::NSJPEGFileType,
-                                                                  {OSX::NSImageCompressionFactor => OSX::NSNumber.numberWithFloat(0.9)})
+        # LEOPARD ONLY:
+        #outputBitmap = OSX::NSBitmapImageRep.alloc.initWithCIImage(outputImage)
+        outputBitmap = OSX::NSBitmapImageRep.alloc.initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel(
+            nil, newWidth, newHeight, 8, 4, true, false, OSX::NSCalibratedRGBColorSpace, 0, 0
+        )
+        outputContext = OSX::NSGraphicsContext.graphicsContextWithBitmapImageRep(outputBitmap)
+        outputContext.CIContext.drawImage_atPoint_fromRect(outputImage, OSX::CGPointMake(0, 0), OSX::CGRectMake(0, 0, newWidth, newHeight))
+
+        outputData = outputBitmap.representationUsingType_properties(OSX::NSJPEGFileType,
+            {OSX::NSImageCompressionFactor => OSX::NSNumber.numberWithFloat(0.9)}
+        )
 
         selected_nsdict = @blogConfigurationController.arrangedObjects.to_a[@blogAccountSelector.indexOfSelectedItem]
         
