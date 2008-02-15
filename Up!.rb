@@ -1,11 +1,10 @@
 #
-#  Up!.rb
 #  Up!
 #
 #  Created by Robert Lillack on 09.12.07.
 #
-#  ©2007 burningsoda.com
-#        All rights reserved.
+#  ©2007–2008 burningsoda.com
+#             All rights reserved.
 #
 
 # NSArrayController anlegen:
