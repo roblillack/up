@@ -118,11 +118,17 @@ class Up < NSWindowController
 		end
 	end
 	
+    def alertDidEnd_returnCode_contextInfo(alert, returnCode, contextInfo)
+		@progress.stopAnimation(self)
+        alert.release
+    end
+    
     ib_action :uploadPicture
 	def uploadPicture(sender)
 		puts "UploadPicture"
         
         return unless @pictureData
+		@progress.startAnimation(self)
         
         @maxSize = @maxSize.to_i
                 
@@ -171,32 +177,60 @@ class Up < NSWindowController
         jpegImage = OSX::NSBitmapImageRep.alloc.initWithCIImage(outputImage)
         outputData = jpegImage.representationUsingType_properties(OSX::NSJPEGFileType,
                                                                   {OSX::NSImageCompressionFactor => OSX::NSNumber.numberWithFloat(0.9)})
-        #.writeToURL_atomically(OSX::NSURL.URLWithString("file:///Users/rob/Desktop/bla.jpg"), true)
+
+        selected_nsdict = @blogConfigurationController.arrangedObjects.to_a[@blogAccountSelector.indexOfSelectedItem]
         
-        #return
+        # pack up all the necessary data for the worker thread
+        work = {
+            :url => selected_nsdict.objectForKey('url').to_s,
+            :blogid => selected_nsdict.objectForKey('active_id').to_s,
+            :username => selected_nsdict.objectForKey('username').to_s,
+            :password => selected_nsdict.objectForKey('password').to_s,
+            :pictureData => outputData.rubyString
+        }
+        # and start it
+        @workerthread = Thread.new(work) {|w| doUploadWork(w)}
         
-		@progress.startAnimation(self)
+        # now, go check if it finished every 500ms
+        # count the checks: after 60s, we abort the upload
+        @workerchecks = 120
+        OSX::NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats(0.5, self, "checkUploadState:", nil, true)
+    end
+    
+    def checkUploadState(timer)
+        if @workerchecks <= 0 then
+            timer.invalidate
+        else
+            @workerchecks = @workerchecks - 1
+        end
+        
+        return if @workerthread.alive?
+        
+        timer.invalidate
+        result = @workerthread.value
+
 		alert = OSX::NSAlert.alloc.init
 		alert.addButtonWithTitle("OK")
-		begin
-            selected_nsdict = @blogConfigurationController.arrangedObjects.to_a[@blogAccountSelector.indexOfSelectedItem]
-			c = XMLRPC::Client.new2(selected_nsdict.objectForKey('url').to_s)
-			result = c.call('metaWeblog.newMediaObject',
-                            selected_nsdict.objectForKey('active_id').to_s,
-							selected_nsdict.objectForKey('username').to_s,
-							selected_nsdict.objectForKey('password').to_s,
-							{ 'type' => 'image/jpeg',
-							  'bits' => XMLRPC::Base64.new(outputData.rubyString)
-							})
-            raise 'No URL in server response.' unless result.key? 'url'
+        if result.key? 'error' then
+            alert.setMessageText('Error uploading file.')
+            alert.setInformativeText(result['error'])
+        elsif not result.key? 'url' then
+            alert.setMessageText('Error uploading file.')
+            alert.setInformativeText('No URL in server response.')
+        else
             alert.setMessageText('File successfully uploaded.')
             alert.setInformativeText('URL: ' + result['url'])
-        rescue Exception => e
-            alert.setMessageText('Error uploading file.')
-            alert.setInformativeText(e.message);
-		end
-		alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo(@mainWindow, self, nil, nil)
-		alert.release
-		@progress.stopAnimation(self)
+        end
+		alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo(@mainWindow, self, "alertDidEnd:returnCode:contextInfo:", nil)
 	end
+    
+    def doUploadWork(work)
+        begin
+            client = XMLRPC::Client.new2(work[:url])
+            return client.call('metaWeblog.newMediaObject', work[:blogid], work[:username], work[:password],
+                               {'type' => 'image/jpeg', 'bits' => XMLRPC::Base64.new(work[:pictureData])})
+        rescue Exception => e
+            return { 'error' => e.message }
+        end
+    end
 end
