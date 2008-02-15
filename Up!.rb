@@ -219,7 +219,9 @@ class Up < NSWindowController
             alert.setInformativeText('No URL in server response.')
         else
             alert.setMessageText('File successfully uploaded.')
-            alert.setInformativeText('URL: ' + result['url'])
+            alert.setInformativeText('The URL (' + result['url'] +
+                                     ') has been copied to the clipboard.')
+            copyUrlToPasteboard(result['url'])
         end
 		alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo(@mainWindow, self, "alertDidEnd:returnCode:contextInfo:", nil)
 	end
@@ -232,5 +234,11 @@ class Up < NSWindowController
         rescue Exception => e
             return { 'error' => e.message }
         end
+    end
+    
+    def copyUrlToPasteboard(url)
+        pboard = OSX::NSPasteboard.generalPasteboard
+        pboard.declareTypes_owner([OSX::NSStringPboardType], self)
+        pboard.setString_forType(url, OSX::NSStringPboardType)
     end
 end
