@@ -21,5 +21,6 @@ end
 
 if $0 == __FILE__ then
   rb_main_init
+  NSApplication.sharedApplication.activateIgnoringOtherApps(true)
   OSX.NSApplicationMain(0, nil)
 end
