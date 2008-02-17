@@ -308,7 +308,8 @@ class Up < NSWindowController
 			# convert the bitmap into the wanted output format
     	    @outputData = outputBitmap.representationUsingType_properties(
 	        	NSJPEGFileType,
-    	    	{NSImageCompressionFactor => @pictureQuality}
+    	    	{NSImageCompressionFactor => @pictureQuality,
+    	    	 NSImageProgressive => NSNumber.numberWithBool(true)}
 	        )
 		end	    	
 		
