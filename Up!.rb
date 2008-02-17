@@ -361,7 +361,7 @@ class Up < NSWindowController
     	    	)
 	        end
         else
-	        @previewWindow.setTitle("Preview: #{@outputWidth}x#{@outputHeight}px, #{(@outputData.length/102.4).to_i/10.0}KiB")
+	        @previewWindow.setTitle("Preview: #{@outputWidth}⨉#{@outputHeight}px, #{(@outputData.length/102.4).to_i/10.0}KiB")
         	@previewWindow.contentView.setImage(NSImage.alloc.initWithData(@outputData))
         	
         	# either we're called by the fired timer, or we don't need it, so:
