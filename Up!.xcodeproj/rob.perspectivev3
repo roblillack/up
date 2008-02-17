@@ -233,8 +233,6 @@
 			<key>Layout</key>
 			<array>
 				<dict>
-					<key>BecomeActive</key>
-					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -282,8 +280,8 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>8</integer>
-									<integer>6</integer>
+									<integer>4</integer>
+									<integer>2</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -316,6 +314,8 @@
 					<key>Dock</key>
 					<array>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -333,16 +333,16 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>D472B03B0D67B11D00AE315C</string>
+										<string>D444CDD30D68FD4C007706B9</string>
 										<key>history</key>
 										<array>
 											<string>D46466070D658CE8001214EC</string>
 											<string>D46466080D658CE8001214EC</string>
 											<string>D46466090D658CE8001214EC</string>
 											<string>D43D80BF0D65CF4800EA3255</string>
-											<string>D43D80C10D65CF4800EA3255</string>
 											<string>D4168D290D66265F0025E965</string>
-											<string>D4168D340D6626F80025E965</string>
+											<string>D444CDCF0D68FD4C007706B9</string>
+											<string>D444CDD00D68FD4C007706B9</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -353,6 +353,8 @@
 											<string>D4B9109F0D456382002CF2F3</string>
 											<string>D4B910A00D456382002CF2F3</string>
 											<string>D46465D30D651875001214EC</string>
+											<string>D444CDD10D68FD4C007706B9</string>
+											<string>D444CDD20D68FD4C007706B9</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -475,11 +477,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>D472B0330D67683700AE315C</string>
+				<string>D444CDCC0D68F9E2007706B9</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>D472B0340D67683700AE315C</string>
+				<string>D444CDCD0D68F9E2007706B9</string>
 				<string>D4B90F7C0D45117A002CF2F3</string>
-				<string>D472B0350D67683700AE315C</string>
+				<string>D444CDCE0D68F9E2007706B9</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>

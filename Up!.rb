@@ -19,7 +19,7 @@ class Up < NSWindowController
 	           :picture, :progress, :uploadButton, :fileName, :addRemoveBlogConfigurationControl,
 			   :blogConfigurationList, :blogConfigurationController, :blogIdController,
 			   :settingsProgress, :settingsPanel, :imageWell,
-               :blogAccountSelector
+               :blogAccountSelector, :pictureQualityPercentLabel
 	attr_accessor :settingsShown, :filePath
 
     # original picture
@@ -72,10 +72,12 @@ class Up < NSWindowController
         @outputData = nil
         # a preview window
         @previewWindow = nil
-	end
+   	end
     
     def awakeFromNib
         puts 'I\'m awake now.'
+        # will set the percent label
+        updatePreview
     end
     
     def applicationDidFinishLaunching(notification)
@@ -286,6 +288,7 @@ class Up < NSWindowController
 	# shows or updates the Preview Window
 	ib_action :updatePreview
 	def updatePreview(skipEncodeDecode = true)
+		@pictureQualityPercentLabel.setStringValue("#{(@pictureQuality.to_f*100).round}%")
 		return unless @pictureData
 		@processedImage = processImage(self.getInputImage, !skipEncodeDecode)
 		
