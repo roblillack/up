@@ -206,17 +206,8 @@ class Up < NSWindowController
 	# this method applies all necessary CI filters to the given image and returns
 	# the result (still, no rendering takes place)
 	def processImage(inputImage, highScalingQuality = true)
-        starttime = Time.now
-
-        puts "# processImage"
-
         maxSize = @pictureSize.to_i
 		
-		# get the image representation into a CoreImage image object
-        #inputImage = CIImage.imageWithData(@pictureData)
-
-        puts "* got CIImage " + (Time.now - starttime).to_s
-        
         # calculate the new width and height
         oldWidth = CGRectGetWidth(inputImage.extent)
         oldHeight = CGRectGetHeight(inputImage.extent)
@@ -238,10 +229,29 @@ class Up < NSWindowController
         
         # downsample
         if highScalingQuality then
-	        scaleFilter = CIFilter.filterWithName("CILanczosScaleTransform")
-    	    scaleFilter.setDefaults()
-        	scaleFilter.setValue_forKey(inputImage, "inputImage")
-        	scaleFilter.setValue_forKey(NSNumber.numberWithDouble(scaleFactor), "inputScale")
+        	# lanczos downsampling produces bad artefacts
+        	# in high contrast areas when the scalefactor is ~0.55 or smaller
+        	# and JPEG compression is used to encode the ouput for me.
+        	# we try to circumvent this (bug?) here, by prescaling
+        	# using a simple affine transform to keep the lanczos scale factor up
+        	if scaleFactor < 0.6 then
+		        trans = NSAffineTransform.transform
+    		 	trans.scaleBy(scaleFactor / 0.6)
+        		preScaleFilter = CIFilter.filterWithName("CIAffineTransform")
+        		preScaleFilter.setDefaults
+        		preScaleFilter.setValue_forKey(inputImage, "inputImage")
+	        	preScaleFilter.setValue_forKey(trans, "inputTransform")
+		        
+		        scaleFilter = CIFilter.filterWithName("CILanczosScaleTransform")
+    		    scaleFilter.setDefaults()
+        		scaleFilter.setValue_forKey(preScaleFilter.valueForKey("outputImage"), "inputImage")
+        		scaleFilter.setValue_forKey(NSNumber.numberWithDouble(0.6), "inputScale")
+        	else
+		        scaleFilter = CIFilter.filterWithName("CILanczosScaleTransform")
+    		    scaleFilter.setDefaults()
+        		scaleFilter.setValue_forKey(inputImage, "inputImage")
+        		scaleFilter.setValue_forKey(NSNumber.numberWithDouble(scaleFactor), "inputScale")
+        	end
         else
 	        scaleFilter = CIFilter.filterWithName("CIAffineTransform")
     	    scaleFilter.setDefaults()
@@ -251,25 +261,19 @@ class Up < NSWindowController
         	scaleFilter.setValue_forKey(trans, "inputTransform")
         end
         
-        puts "* scaled " + (Time.now - starttime).to_s
-        
         sharpenFilter = CIFilter.filterWithName("CISharpenLuminance")
         sharpenFilter.setDefaults()
         sharpenFilter.setValue_forKey(NSNumber.numberWithFloat(scaleFactor/10.0), "inputSharpness")
         sharpenFilter.setValue_forKey(scaleFilter.valueForKey("outputImage"), "inputImage")
-
-        puts "* sharpened " + (Time.now - starttime).to_s
 
         contrastFilter = OSX::CIFilter.filterWithName("CIColorControls")
         contrastFilter.setDefaults()
         contrastFilter.setValue_forKey(OSX::NSNumber.numberWithFloat(1.05), "inputContrast")
         contrastFilter.setValue_forKey(sharpenFilter.valueForKey("outputImage"), "inputImage")
         
-        puts "* contrast increased " + (Time.now - starttime).to_s
-
-        #outputImage = contrastFilter.valueForKey("outputImage")
         @outputWidth = newWidth
         @outputHeight = newHeight
+
         return contrastFilter.valueForKey("outputImage")
 	end
 	
