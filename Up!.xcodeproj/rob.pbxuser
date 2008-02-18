@@ -151,7 +151,7 @@
 	};
 	4DDCA7110ACC9A6100E082CE /* Info.plist */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1065, 515}}";
+			sepNavIntBoundsRect = "{{0, 0}, {1065, 642}}";
 			sepNavSelRange = "{806, 0}";
 			sepNavVisRange = "{0, 833}";
 			sepNavWindowFrame = "{{15, 208}, {1132, 815}}";
@@ -159,9 +159,9 @@
 	};
 	D41400BB0D0FF57500295A29 /* Credits.html */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1065, 492}}";
-			sepNavSelRange = "{211, 0}";
-			sepNavVisRange = "{0, 221}";
+			sepNavIntBoundsRect = "{{0, 0}, {1065, 642}}";
+			sepNavSelRange = "{98, 0}";
+			sepNavVisRange = "{0, 188}";
 		};
 	};
 	D4168D290D66265F0025E965 /* PBXTextBookmark */ = {
@@ -334,7 +334,7 @@
 		fRef = D41400BB0D0FF57500295A29 /* Credits.html */;
 		name = "Credits.html: 7";
 		rLen = 0;
-		rLoc = 211;
+		rLoc = 179;
 		rType = 0;
 		vrLen = 221;
 		vrLoc = 0;
@@ -374,7 +374,7 @@
 		fRef = D41400BB0D0FF57500295A29 /* Credits.html */;
 		name = "Credits.html: 7";
 		rLen = 0;
-		rLoc = 211;
+		rLoc = 179;
 		rType = 0;
 		vrLen = 221;
 		vrLoc = 0;
