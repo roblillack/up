@@ -28,6 +28,8 @@ class Up < NSWindowController
     attr_accessor :pictureSize
     # the picture quality (only used for JPEG or JPEG2000 format)
     attr_accessor :pictureQuality
+    attr_accessor :pictureSharpen
+    attr_accessor :pictureContrast
         
     ib_action :windowShouldClose do |sender|
         NSApp.stop(self)
@@ -68,6 +70,8 @@ class Up < NSWindowController
 		puts "Initializing Controller “Up”"
         @pictureSize = 400
         @pictureQuality = 0.8
+        @pictureSharpen = 0.8
+        @pictureContrast = 1.1
         # contains the readily rendered data
         @outputData = nil
         # a preview window
@@ -265,12 +269,12 @@ class Up < NSWindowController
         
         sharpenFilter = CIFilter.filterWithName("CISharpenLuminance")
         sharpenFilter.setDefaults()
-        sharpenFilter.setValue_forKey(NSNumber.numberWithFloat(scaleFactor/10.0), "inputSharpness")
+        sharpenFilter.setValue_forKey(@pictureSharpen, "inputSharpness")
         sharpenFilter.setValue_forKey(scaleFilter.valueForKey("outputImage"), "inputImage")
 
         contrastFilter = OSX::CIFilter.filterWithName("CIColorControls")
         contrastFilter.setDefaults()
-        contrastFilter.setValue_forKey(OSX::NSNumber.numberWithFloat(1.05), "inputContrast")
+        contrastFilter.setValue_forKey(@pictureContrast, "inputContrast")
         contrastFilter.setValue_forKey(sharpenFilter.valueForKey("outputImage"), "inputImage")
         
         @outputWidth = newWidth
