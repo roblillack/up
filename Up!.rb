@@ -112,9 +112,10 @@ class Up < NSWindowController
 		end
 		res.each do |b|
 			next unless b.key? 'blogName' and b.key? 'blogid'
-			@blogIdController.addObject({'id' => b['blogid'], 'name' => b['blogName']})
+			newObject = {'id' => b['blogid'], 'name' => b['blogName']}
+			@blogIdController.addObject(newObject)
+	        @blogIdController.setSelectedObjects([newObject])
 		end
-        @blogIdContoller.setSelectionIndex(0)
 		@settingsProgress.stopAnimation(self)
 	end
 	
