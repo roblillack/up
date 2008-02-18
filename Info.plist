@@ -13,9 +13,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>BSUp</string>
 	<key>CFBundleVersion</key>
-	<string>0.8</string>
+	<string>32</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
@@ -24,5 +24,10 @@
 	<string>com.burningsoda.up</string>
 	<key>CFBundleShortVersionString</key>
 	<string>0.8</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.4.0</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright© 2007-2008 Robert Lillack, burningsoda.com
+</string>
 </dict>
 </plist>
