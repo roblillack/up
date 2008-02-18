@@ -129,7 +129,8 @@ class Up < NSWindowController
 			arrayObject = {	'title' => 'New Profile', 'url' => 'http://',
 							'type' => 0,
 							'available_ids' => [], 'active_id' => '',
-							'username' => '', 'password' => '' }
+							'username' => '', 'password' => '',
+							'template' => '<img src="%url%" alt="" style="width:%width%px;height:%height%px;" />' }
 			@blogConfigurationController.addObject(arrayObject)
 			@blogConfigurationController.setSelectedObjects([arrayObject])
 		else
@@ -153,9 +154,16 @@ class Up < NSWindowController
 
 		# start the progress bar (how lame)		
 		@progress.startAnimation(self)
-		
+				
 		# retrieve the selected blog config
         selected_nsdict = @blogConfigurationController.arrangedObjects.to_a[@blogAccountSelector.indexOfSelectedItem]
+
+		# get the output template and replace the first values
+		# as they may change while we upload
+		# (url will be inserted when we know it)
+   		template = selected_nsdict.objectForKey('template').to_s
+   		template.gsub!(/%width%/, "#{@outputWidth}")
+		template.gsub!(/%height%/, "#{@outputHeight}")
         
         # pack up all the necessary data for the worker thread
         # i did not use :symbols here because if i choose to use
@@ -166,6 +174,7 @@ class Up < NSWindowController
             'blogid' => selected_nsdict.objectForKey('active_id').to_s,
             'username' => selected_nsdict.objectForKey('username').to_s,
             'password' => selected_nsdict.objectForKey('password').to_s,
+            'template' => template,
             'data' => @outputData,
         }
 
@@ -204,9 +213,16 @@ class Up < NSWindowController
             alert.setInformativeText('No URL in server response.')
         else
             alert.setMessageText('File successfully uploaded.')
-            alert.setInformativeText('The URL (' + result['url'] +
-                                     ') has been copied to the clipboard.')
-            copyUrlToPasteboard(result['url'])
+            if not result.key? 'template' or
+               result['template'] == nil or
+               result['template'].length < 1 then
+	            alert.setInformativeText('The URL (' + result['url'] +
+    	                                 ') has been copied to the clipboard.')
+            	copyUrlToPasteboard(result['url'])
+            else
+	            alert.setInformativeText('The filled template has been copied to the pasteboard.')
+            	copyUrlToPasteboard(result['template'])
+            end
             NSApp.requestUserAttention(NSInformationalRequest)
         end
 		alert.beginSheetModalForWindow_modalDelegate_didEndSelector_contextInfo(
@@ -389,6 +405,8 @@ class Up < NSWindowController
             result = { 'error' => e.message }
         end
 
+        result['template'] = work['template'].gsub(/%url%/, result['url'])
+        
 		# tell the main thread about us being ready
         self.performSelectorOnMainThread_withObject_waitUntilDone("workReady:", result, false)
         
