@@ -80,12 +80,16 @@ class Up < NSWindowController
     
     def awakeFromNib
         puts 'I\'m awake now.'
-        # will set the percent label
+        
+        # will set up the percent label and stuff
         updatePreview
     end
     
     def applicationDidFinishLaunching(notification)
         puts 'Application did finish launching.'
+
+        # bring up those settings, if we're new here.
+        showSettings(@mainWindow) if @blogConfigurationController.arrangedObjects.count == 0
     end
 	
 	def applicationWillFinishLaunching(notification)
