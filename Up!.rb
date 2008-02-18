@@ -59,6 +59,11 @@ class Up < NSWindowController
     
     def applicationWillTerminate(notification)
         puts 'Application will terminate.'
+        
+        @cfg.setInteger_forKey(@pictureSize, "pictureSize")
+        @cfg.setFloat_forKey(@pictureQuality, "pictureQuality")
+        @cfg.setFloat_forKey(@pictureSharpen, "pictureSharpen")
+        @cfg.setFloat_forKey(@pictureContrast, "pictureContrast")
     end
     
     def applicationShouldTerminate(sender)
@@ -68,10 +73,12 @@ class Up < NSWindowController
 	
 	def initialize
 		puts "Initializing Controller “Up”"
-        @pictureSize = 400
-        @pictureQuality = 0.8
-        @pictureSharpen = 0.8
-        @pictureContrast = 1.1
+        @cfg = NSUserDefaultsController.sharedUserDefaultsController.defaults
+
+        @pictureSize = 400 if (@pictureSize = @cfg.integerForKey("pictureSize")) == 0
+        @pictureQuality = 0.8 if (@pictureQuality = @cfg.floatForKey("pictureQuality")) == 0
+        @pictureSharpen = 0.8 if (@pictureSharpen = @cfg.floatForKey("pictureSharpen")) == 0
+        @pictureContrast = 1.1 if (@pictureContrast = @cfg.floatForKey("pictureContrast")) == 0
         # contains the readily rendered data
         @outputData = nil
         # a preview window
@@ -80,7 +87,7 @@ class Up < NSWindowController
     
     def awakeFromNib
         puts 'I\'m awake now.'
-        
+                
         # will set up the percent label and stuff
         updatePreview
     end
@@ -360,12 +367,12 @@ class Up < NSWindowController
         		NSBackingStoreBuffered,
 	        	false
 	        )
+	        @previewWindow.setFrameAutosaveName("preview")
 	        # not needed
 	        @previewWindow.setPreservesContentDuringLiveResize(false)
 	        # no overlapping views, use some optimization
 	        @previewWindow.useOptimizedDrawing(true)
 	        @previewWindow.setMovableByWindowBackground(true)
-	        @previewWindow.center
 	        imageView = NSImageView.alloc.initWithFrame @previewWindow.frame
 	        imageView.setImageScaling(NSScaleNone)
     	    @previewWindow.setContentView imageView
