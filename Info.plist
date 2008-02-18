@@ -15,7 +15,7 @@
 	<key>CFBundleSignature</key>
 	<string>BSUp</string>
 	<key>CFBundleVersion</key>
-	<string>32</string>
+	<string>33</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
@@ -23,7 +23,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.burningsoda.up</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.8</string>
+	<string>0.8.1</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.4.0</string>
 	<key>NSHumanReadableCopyright</key>
