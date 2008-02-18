@@ -1,5 +1,6 @@
 # -*- mode:ruby; indent-tabs-mode:nil; coding:utf-8 -*-
 # vim:ts=2:sw=2:expandtab:
+require 'erb'
 require 'rubygems'
 require 'rake'
 require 'rake/clean'
@@ -7,18 +8,23 @@ require 'rake/testtask'
 require 'pathname'
 
 # Application own Settings
-#APPNAME               = "«PROJECTNAME»"
 APPNAME               = "Up!"
+CLEANNAME             = "up"
 TARGET                = "#{APPNAME}.app"
-#APPVERSION           = "rev#{`svn info`[/Revision: (\d+)/, 1]}"
-APPVERSION            = Time.now.strftime("%Y-%m-%d")
-PUBLISH               = 'yourname@yourhost:path'
+APPVERSION            = `git tag -l '*.*' | sort -gr | head -n 1`.strip
+APPBUILD              = `git log --pretty=oneline | wc -l`[/\d+/]
 DEFAULT_TARGET        = APPNAME
 DEFAULT_CONFIGURATION = 'Release'
 RELEASE_CONFIGURATION = 'Release'
 
 # Tasks
-task :default => [:run]
+task :default => [:rundebug]
+
+desc "Build the DEBUG configuration and run it, showing standard error output here."
+task :rundebug => ["xcode:build:#{DEFAULT_TARGET}:Debug"] do
+  sh %{"build/Debug/#{TARGET}/Contents/MacOS/#{APPNAME}"}
+end
+
 
 desc "Build the default and run it."
 task :run => [:build] do
@@ -26,11 +32,12 @@ task :run => [:build] do
 end
 
 desc 'Build the default target using the default configuration'
-task :build => "xcode:build:#{DEFAULT_TARGET}:#{DEFAULT_CONFIGURATION}"
+task :build => ["xcode:build:#{DEFAULT_TARGET}:#{DEFAULT_CONFIGURATION}"]
 
 desc 'Deep clean of everything'
 task :clean do
-  puts %x{ xcodebuild -alltargets clean }
+  #puts %x{ xcodebuild -alltargets clean }
+  rm_rf "build"
 end
 
 desc "Add files to Xcode project"
@@ -57,20 +64,18 @@ task :update do |t|
  exec("rubycocoa", "update", *args)
 end
 
-desc "Package the application"
-task :package => ["xcode:build:#{DEFAULT_TARGET}:#{RELEASE_CONFIGURATION}", "pkg"] do
-  name = "#{APPNAME}.#{APPVERSION}"
-  mkdir "image"
-  sh %{rubycocoa standaloneify "build/#{DEFAULT_CONFIGURATION}/#{APPNAME}.app" "image/#{APPNAME}.app"}
-  puts 'Creating Image...'
-  sh %{
-  hdiutil create -volname '#{name}' -srcfolder image '#{name}'.dmg
-  rm -rf image
-  mv '#{name}.dmg' pkg
-  }
+desc "Processes *.erb files"
+rule(/.[^eE][^rR][^bB]$/ => [proc {|n| n+'.erb'}]) do |t|
+    print "ERB: #{t.source} => #{t.name} … "
+	open(t.name, 'w').write(ERB.new(open(t.source).read).result(binding))
+	puts "done"
 end
 
-directory 'pkg'
+desc "Create a disk image"
+task :dmg => ["xcode:build:#{DEFAULT_TARGET}:#{RELEASE_CONFIGURATION}"] do
+	rm_rf "#{CLEANNAME}-#{APPVERSION}.dmg"
+	sh %{hdiutil create -volname '#{APPNAME} #{APPVERSION}' -srcfolder "build/#{RELEASE_CONFIGURATION}/#{TARGET}" "#{CLEANNAME}-#{APPVERSION}.dmg"}
+end
 
 desc 'Make Localized nib from English.lproj and Lang.lproj/nib.strings'
 rule(/.nib$/ => [proc {|tn| File.dirname(tn) + '/nib.strings' }]) do |t|
@@ -111,6 +116,7 @@ def xcode_configurations
 end
 
 namespace :xcode do
+ needed = []
  targets = xcode_targets
  configs = xcode_configurations
 
@@ -119,7 +125,7 @@ namespace :xcode do
 
      targets.each do |target|
        desc "#{action} #{target}"
-       task "#{target}" do |t|
+       task "#{target}" => needed do |t|
          puts %x{ xcodebuild -target '#{target}' #{action} }
        end
 
@@ -131,8 +137,8 @@ namespace :xcode do
        namespace "#{target}" do
          configs.each do |config|
            desc "#{action} #{target} #{config}"
-           task "#{config}" do |t|
-             puts %x{ xcodebuild -target '#{target}' -configuration '#{config}' #{action} }
+           task "#{config}" => needed do |t|
+             sh %{xcodebuild -target '#{target}' -configuration '#{config}' #{action}}
            end
          end
        end
