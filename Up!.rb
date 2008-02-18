@@ -11,6 +11,7 @@
 # - content array binden an Preferences.values.<key>
 # - [x] handles content as compound value!!! (sonst kein sichern moeglich)
 
+require 'digest/md5'
 require 'xmlrpc/client'
 require 'pp'
 
@@ -406,8 +407,11 @@ class Up < NSWindowController
     def doHeftyWork(work)
         begin
             client = XMLRPC::Client.new2(work['url'])
+            data = work['data'].rubyString
             result = client.call('metaWeblog.newMediaObject', work['blogid'], work['username'], work['password'],
-                                 {'type' => 'image/jpeg', 'bits' => XMLRPC::Base64.new(work['data'].rubyString)})
+                                 {'type' => 'image/jpeg',
+                                  'bits' => XMLRPC::Base64.new(data),
+                                  'name' => "" << Digest::MD5.hexdigest(data) << ".jpg" })
         rescue Exception => e
             result = { 'error' => e.message }
         end
