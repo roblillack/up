@@ -360,7 +360,7 @@ class Up < NSWindowController
 			)
 			# try to make sure, the window does not leave the screen
 			newFrame = @previewWindow.constrainFrameRect_toScreen(newFrame, @previewWindow.screen)
-        	@previewWindow.setFrame_display_animate(newFrame, true, true)
+        	@previewWindow.setFrame_display_animate(newFrame, false, false)
         else
 	        @previewWindow = NSWindow.alloc.initWithContentRect_styleMask_backing_defer(
     	    	[100, 100, contentWidth, contentHeight],
@@ -368,6 +368,7 @@ class Up < NSWindowController
         		NSBackingStoreBuffered,
 	        	false
 	        )
+	        @previewWindow.setPreferredBackingLocation(NSWindowBackingLocationVideoMemory)
 	        @previewWindow.setFrameAutosaveName("preview")
 	        # not needed
 	        @previewWindow.setPreservesContentDuringLiveResize(false)
