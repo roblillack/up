@@ -54,6 +54,10 @@
 				<string>id</string>
 				<key>pictureQualityPercentLabel</key>
 				<string>id</string>
+				<key>pictureSizeLabel</key>
+				<string>id</string>
+				<key>pictureSizeSlider</key>
+				<string>id</string>
 				<key>progress</key>
 				<string>id</string>
 				<key>settingsPanel</key>

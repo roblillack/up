@@ -284,8 +284,8 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>2</integer>
-									<integer>1</integer>
+									<integer>9</integer>
+									<integer>7</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -307,7 +307,7 @@
 							<real>185</real>
 						</array>
 						<key>RubberWindowFrame</key>
-						<string>44 70 1333 956 0 0 1680 1028 </string>
+						<string>89 71 1333 956 0 0 1680 1028 </string>
 					</dict>
 					<key>Module</key>
 					<string>PBXSmartGroupTreeModule</string>
@@ -332,10 +332,6 @@
 										<string>D4B90F7D0D45117A002CF2F3</string>
 										<key>PBXProjectModuleLabel</key>
 										<string>Up!.rb</string>
-										<key>_historyCapacity</key>
-										<integer>0</integer>
-										<key>bookmark</key>
-										<string>D47523B70D6E287900BB4F0B</string>
 										<key>history</key>
 										<array>
 											<string>D444CDCF0D68FD4C007706B9</string>
@@ -355,7 +351,6 @@
 											<string>D4B9109F0D456382002CF2F3</string>
 											<string>D4B910A00D456382002CF2F3</string>
 											<string>D46465D30D651875001214EC</string>
-											<string>D47523B50D6E287900BB4F0B</string>
 											<string>D47523B60D6E287900BB4F0B</string>
 										</array>
 									</dict>
@@ -372,7 +367,7 @@
 								<key>Frame</key>
 								<string>{{0, 0}, {1126, 674}}</string>
 								<key>RubberWindowFrame</key>
-								<string>44 70 1333 956 0 0 1680 1028 </string>
+								<string>89 71 1333 956 0 0 1680 1028 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
@@ -397,7 +392,7 @@
 										<key>Frame</key>
 										<string>{{10, 27}, {1126, 209}}</string>
 										<key>RubberWindowFrame</key>
-										<string>44 70 1333 956 0 0 1680 1028 </string>
+										<string>89 71 1333 956 0 0 1680 1028 </string>
 									</dict>
 									<key>Module</key>
 									<string>XCDetailModule</string>
@@ -479,11 +474,11 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>D47523AE0D6DF5F800BB4F0B</string>
+				<string>D47523CB0D6E43B000BB4F0B</string>
 				<string>1CA23ED40692098700951B8B</string>
-				<string>D47523AF0D6DF5F800BB4F0B</string>
+				<string>D47523CC0D6E43B000BB4F0B</string>
 				<string>D4B90F7C0D45117A002CF2F3</string>
-				<string>D47523B00D6DF5F800BB4F0B</string>
+				<string>D47523CD0D6E43B000BB4F0B</string>
 				<string>1CA23EDF0692099D00951B8B</string>
 				<string>1CA23EE00692099D00951B8B</string>
 				<string>1CA23EE10692099D00951B8B</string>
@@ -668,7 +663,7 @@
 		<string>/Volumes/daten/Projects/Up!/Up!.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
-	<string>44 70 1333 956 0 0 1680 1028 </string>
+	<string>89 71 1333 956 0 0 1680 1028 </string>
 	<key>WindowToolsV3</key>
 	<array>
 		<dict>

@@ -20,7 +20,8 @@ class Up < NSWindowController
 	           :picture, :progress, :uploadButton, :fileName, :addRemoveBlogConfigurationControl,
 			   :blogConfigurationList, :blogConfigurationController, :blogIdController,
 			   :settingsProgress, :settingsPanel, :imageWell,
-               :blogAccountSelector, :pictureQualityPercentLabel
+               :blogAccountSelector,
+               :pictureQualityPercentLabel, :pictureSizeSlider, :pictureSizeLabel
 	attr_accessor :settingsShown, :filePath
 
     # original picture
@@ -31,7 +32,7 @@ class Up < NSWindowController
     attr_accessor :pictureQuality
     attr_accessor :pictureSharpen
     attr_accessor :pictureContrast
-        
+    
     ib_action :windowShouldClose do |sender|
         NSApp.stop(self)
         true
@@ -331,7 +332,7 @@ class Up < NSWindowController
 		# and the previewview updated the image by doing a simple scale (stage 1)
 		# we calculate a new picturesize and call stage 2
 		# (which will resize the window to make it pixel-perfect and call stage 3)
-		@pictureSize = @previewWindow.contentRectForFrameRect(@previewWindow.frame).size.width - 30
+		self.setPictureSize NSNumber.numberWithInt(@previewWindow.contentRectForFrameRect(@previewWindow.frame).size.width - 30)
 		# the next resize may be someone else(?) again...
 		@userIsResizing = false
 		updatePreview
@@ -341,6 +342,10 @@ class Up < NSWindowController
 	ib_action :updatePreview
 	def updatePreview(skipEncodeDecode = true)
 		@pictureQualityPercentLabel.setStringValue("#{(@pictureQuality.to_f*100).round}%")
+		@pictureSizeLabel.setStringValue("#{@pictureSize.to_i}px")
+		if @pictureSizeSlider.intValue != @pictureSize.to_i then
+			@pictureSizeSlider.setIntValue(@pictureSize.to_i)
+		end
 		return unless @pictureData
 		@processedImage = processImage(self.getInputImage, !skipEncodeDecode)
 		
