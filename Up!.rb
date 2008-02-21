@@ -256,12 +256,6 @@ class Up < NSWindowController
             scaleFactor = (maxSize + 4) / oldHeight
         end
         
-        puts "max. Size: #{maxSize}"
-        puts "actual Size: #{oldWidth}x#{oldHeight}"
-        puts "resize factor: #{scaleFactor}"
-        puts "new Size: #{scaleFactor * oldWidth}x#{scaleFactor * oldHeight}"
-        puts "predicted new size: #{newWidth}x#{newHeight}"
-        
         # downsample
         if highScalingQuality then
         	# lanczos downsampling produces bad artefacts
@@ -467,10 +461,8 @@ class Up < NSWindowController
 	end
 
     def getInputImage
-    	starttime = Time.now
     	# pictureData did not change? right, so...
     	if @inputImage != nil and @oldPictureData == @pictureData then
-	        puts "* returning InputImage: " + (Time.now - starttime).to_s
     		return @inputImage
     	end
     	
@@ -498,7 +490,6 @@ class Up < NSWindowController
     	@inputImage = CIImage.alloc.initWithBitmapImageRep(bitmapRep)
     	@oldPictureData = @pictureData
     	
-        puts "* returning InputImage: " + (Time.now - starttime).to_s
     	return @inputImage
     end
 end

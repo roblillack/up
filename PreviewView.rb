@@ -1,5 +1,5 @@
 #
-#  CIView.rb
+#  PreviewView.rb
 #  Up!
 #
 #  Created by Robert Lillack on 21.02.08.
@@ -9,6 +9,7 @@
 require 'osx/cocoa'
 
 class PreviewView <  OSX::NSView
+
   def setImage(image)
     @image = image
     setNeedsDisplay(true)
@@ -24,13 +25,15 @@ class PreviewView <  OSX::NSView
     
     context = NSGraphicsContext.currentContext.CIContext                                                                          
 
+	# PreviewView can scale the given image on it's own.
+	# This first stage of drawing is needed when stage2
+	# is not rendered fast enough and the window size did change a LOT.
+	# We try to prevent the window from bein shown with a wrong sized image
     if imageW + 30 != windowW then
     	context.drawImage_inRect_fromRect(@image, CGRectMake(15, 15, windowW - 30, windowH - 30), @image.extent)
     else
     	context.drawImage_atPoint_fromRect(@image, CGPointMake(15, 15), @image.extent)
     end
-    
-    puts "image: #{imageW}x#{imageH}, window: #{windowW}x#{windowH}"
   end
 
 end
