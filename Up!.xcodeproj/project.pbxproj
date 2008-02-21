@@ -15,6 +15,7 @@
 		4DDCA70D0ACC9A6100E082CE /* RubyCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8F5E24E03AEB6EC03A81C6F /* RubyCocoa.framework */; };
 		D41400BC0D0FF57500295A29 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = D41400BB0D0FF57500295A29 /* Credits.html */; };
 		D42584DF0D0CA75C00F443AC /* Up!.rb in Resources */ = {isa = PBXBuildFile; fileRef = D42584DE0D0CA75C00F443AC /* Up!.rb */; };
+		D47523B20D6DF60900BB4F0B /* PreviewView.rb in Resources */ = {isa = PBXBuildFile; fileRef = D47523B10D6DF60900BB4F0B /* PreviewView.rb */; };
 		D4AEB1F40D6491C1005AA4E5 /* UpLogo.icns in Resources */ = {isa = PBXBuildFile; fileRef = D4AEB1F30D6491C1005AA4E5 /* UpLogo.icns */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +30,7 @@
 		4DDCA7120ACC9A6100E082CE /* Up!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Up!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D41400BB0D0FF57500295A29 /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		D42584DE0D0CA75C00F443AC /* Up!.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = "Up!.rb"; sourceTree = "<group>"; };
+		D47523B10D6DF60900BB4F0B /* PreviewView.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = PreviewView.rb; sourceTree = "<group>"; };
 		D4AEB1F30D6491C1005AA4E5 /* UpLogo.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = UpLogo.icns; path = gfx/UpLogo.icns; sourceTree = "<group>"; };
 		E8F5E24E03AEB6EC03A81C6F /* RubyCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RubyCocoa.framework; path = /System/Library/Frameworks/RubyCocoa.framework; sourceTree = "<absolute>"; };
 		E8F5E25803AEB7C803A81C6F /* rb_main.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = rb_main.rb; sourceTree = "<group>"; };
@@ -50,6 +52,8 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				D42584DE0D0CA75C00F443AC /* Up!.rb */,
+				D47523B10D6DF60900BB4F0B /* PreviewView.rb */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -96,7 +100,6 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				D42584DE0D0CA75C00F443AC /* Up!.rb */,
 				29B97316FDCFA39411CA2CEA /* main.m */,
 				E8F5E25803AEB7C803A81C6F /* rb_main.rb */,
 			);
@@ -183,6 +186,7 @@
 				D42584DF0D0CA75C00F443AC /* Up!.rb in Resources */,
 				D41400BC0D0FF57500295A29 /* Credits.html in Resources */,
 				D4AEB1F40D6491C1005AA4E5 /* UpLogo.icns in Resources */,
+				D47523B20D6DF60900BB4F0B /* PreviewView.rb in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

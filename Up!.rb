@@ -306,16 +306,41 @@ class Up < NSWindowController
         contrastFilter.setValue_forKey(@pictureContrast, "inputContrast")
         contrastFilter.setValue_forKey(sharpenFilter.valueForKey("outputImage"), "inputImage")
         
+		cropFilter = CIFilter.filterWithName_("CICrop")
+        cropFilter.setDefaults()
+		cropFilter.setValue_forKey_(CIVector.vectorWithX_Y_Z_W(2.0, 2.0, newWidth, newHeight), "inputRectangle")
+		cropFilter.setValue_forKey_(contrastFilter.valueForKey("outputImage"), "inputImage")
+        
         @outputWidth = newWidth
         @outputHeight = newHeight
 
-        return contrastFilter.valueForKey("outputImage")
+        return cropFilter.valueForKey("outputImage")
 	end
 	
 	# wrapper function because i'm unable to let the nstimer
 	# calls updatePreview(false) when it fires :(
 	def finalizePreview
 		updatePreview(false)
+	end
+	
+	def windowWillResize_toSize(window, proposedSize)
+		return proposedSize unless window == @previewWindow
+		# to prevent double updating
+		@userIsResizing = true
+		# the proposed Size should work because the aspect ratio is set
+		return proposedSize
+	end
+	
+	def windowDidResize(notification)
+		return unless notification.object == @previewWindow and @userIsResizing
+		# the user did resize the window
+		# and the previewview updated the image by doing a simple scale (stage 1)
+		# we calculate a new picturesize and call stage 2
+		# (which will resize the window to make it pixel-perfect and call stage 3)
+		@pictureSize = @previewWindow.contentRectForFrameRect(@previewWindow.frame).size.width - 30
+		# the next resize may be someone else(?) again...
+		@userIsResizing = false
+		updatePreview
 	end
 	
 	# shows or updates the Preview Window
@@ -334,8 +359,8 @@ class Up < NSWindowController
     	    outputContext = NSGraphicsContext.graphicsContextWithBitmapImageRep(outputBitmap).CIContext
         	outputContext.drawImage_atPoint_fromRect(
 	        	@processedImage,
-    	    	CGPointMake(0, 0),
-        		CGRectMake(2, 2, @outputWidth, @outputHeight)
+    	    	CGPointMake(0, 0), @processedImage.extent
+        		#CGRectMake(0, 0, @outputWidth, @outputHeight)
 	        )
 
 			# convert the bitmap into the wanted output format
@@ -344,13 +369,13 @@ class Up < NSWindowController
     	    	{NSImageCompressionFactor => @pictureQuality,
     	    	 NSImageProgressive => NSNumber.numberWithBool(true)}
 	        )
-		end	    	
+		end
 		
 	    # show a preview window
 	    contentWidth = @outputWidth + 30
 	    contentHeight = @outputHeight + 30
         if @previewWindow then
-        	# already open? then resize (animated around the center, of course)
+        	# already open? then resize (around the center, of course)
         	oldFrame = @previewWindow.frame
         	oldContentRect = @previewWindow.contentRectForFrameRect(oldFrame)
         	newFrame = @previewWindow.frameRectForContentRect(
@@ -360,30 +385,33 @@ class Up < NSWindowController
 			)
 			# try to make sure, the window does not leave the screen
 			newFrame = @previewWindow.constrainFrameRect_toScreen(newFrame, @previewWindow.screen)
-        	@previewWindow.setFrame_display_animate(newFrame, false, false)
+			# sending setFrame:display: does NOT invoke willResize:toSize:
+        	@previewWindow.setFrame_display(newFrame, true)
         else
 	        @previewWindow = NSWindow.alloc.initWithContentRect_styleMask_backing_defer(
     	    	[100, 100, contentWidth, contentHeight],
-        		NSTitledWindowMask,
+        		NSTitledWindowMask | NSResizableWindowMask,
         		NSBackingStoreBuffered,
 	        	false
 	        )
 	        @previewWindow.setPreferredBackingLocation(NSWindowBackingLocationVideoMemory)
 	        @previewWindow.setFrameAutosaveName("preview")
+	        @previewWindow.setDelegate(self)
 	        # not needed
 	        @previewWindow.setPreservesContentDuringLiveResize(false)
 	        # no overlapping views, use some optimization
 	        @previewWindow.useOptimizedDrawing(true)
 	        @previewWindow.setMovableByWindowBackground(true)
-	        imageView = NSImageView.alloc.initWithFrame @previewWindow.frame
-	        imageView.setImageScaling(NSScaleNone)
+	        imageView = PreviewView.alloc.initWithFrame @previewWindow.frame
     	    @previewWindow.setContentView imageView
         	@previewWindow.makeKeyAndOrderFront self
 	    end
+	    @previewWindow.setContentAspectRatio [@outputWidth+30, @outputHeight+30]
 
         if skipEncodeDecode then
-        	@previewWindow.setTitle("Processing Preview....")
+	        @previewWindow.setTitle("Preview: #{@outputWidth}x#{@outputHeight}px, ...KiB")
         	@previewWindow.contentView.setImage(getNSImageFromCIImage(@processedImage))
+        	@previewWindow.contentView.setImage(@processedImage)
 
 	        # setup a timer to display a REAL preview (encoded to the output format, scaled using better quality)
     	    # after a short time interval. this speeds up the live display enormously
@@ -397,7 +425,7 @@ class Up < NSWindowController
 	        end
         else
 	        @previewWindow.setTitle("Preview: #{@outputWidth}x#{@outputHeight}px, #{(@outputData.length/102.4).to_i/10.0}KiB")
-        	@previewWindow.contentView.setImage(NSImage.alloc.initWithData(@outputData))
+        	@previewWindow.contentView.setImage(CIImage.alloc.initWithData(@outputData))
         	
         	# either we're called by the fired timer, or we don't need it, so:
         	@previewTimer = nil
