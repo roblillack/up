@@ -11,9 +11,12 @@
 # - content array binden an Preferences.values.<key>
 # - [x] handles content as compound value!!! (sonst kein sichern moeglich)
 
+require 'rubygems'
 require 'digest/md5'
-require 'xmlrpc/client'
+require 'hpricot'
+require 'open-uri'
 require 'pp'
+require 'xmlrpc/client'
 
 class Up < NSWindowController
 	ib_outlets :mainWindow, :inputUrl, :inputUsername, :inputPassword,
@@ -109,12 +112,55 @@ class Up < NSWindowController
 	def applicationWillFinishLaunching(notification)
 		puts "applicationWillFinishLaunching"
 	end
+	
+	# checks the given URL for a valid XMLRPC server,
+	# returns a string containing the XMLRPC URL belonging to the given Blog/RSD/XMLRPC URL,
+	# or false if no XMLRPC service could be found.
+	def checkBlogURL(url)
+		puts ">> #{url}"
+		doc = Hpricot(open(url))
+		
+		# looks like XML-RPC
+		return url if ((doc/'methodresponse').size == 1)
+		
+		# looks like RSD
+		(doc/'/rsd//api[@name="MetaWeblog"]').each do |e|
+			return checkBlogURL(e['apilink'])
+		end
+
+		# ok, it's a HTML document. go, search the RSD specification!		
+		(doc/'/html/head/link[@rel="EditURI"]').each do |e|
+			return checkBlogURL(e['href'])
+		end
+
+		# special cases
+		# Wordpress sends a plaintext message :(
+		return url if doc.to_s.strip[/^.*XML[-]RPC.*$/]
+		
+		return false
+	end
     
     ib_action :checkBlogIds
 	def checkBlogIds(sender = nil)
+		# first, check the blog url
+		return if @inputUrl.stringValue.to_s == nil or @inputUrl.stringValue.to_s.strip == ''
+		if @oldURL != @inputUrl.stringValue.to_s.strip then
+			# ok, something changed here
+			@settingsProgress.startAnimation(self)
+			@oldURL = checkBlogURL(@inputUrl.stringValue.to_s.strip)
+			@settingsProgress.stopAnimation(self)
+			return if @oldURL == false
+			@inputUrl.setStringValue(@oldURL)
+		else
+			# URL did _not_ change but was not working before?
+			# ---> we can stop here :(
+			return if @oldURL == false
+		end
+		
+		# ok, we now assume, the XML-RPC interface works, and
+		# check the user credentials
 		return if @inputUsername.stringValue.to_s == nil or @inputUsername.stringValue.to_s == '' or
-				  @inputPassword.stringValue.to_s == nil or @inputPassword.stringValue.to_s == '' or
-				  @inputUrl.stringValue.to_s == nil or @inputUrl.stringValue.to_s == ''
+				  @inputPassword.stringValue.to_s == nil or @inputPassword.stringValue.to_s == ''
 		@settingsProgress.startAnimation(self)
 		begin
 			c = XMLRPC::Client.new2(@inputUrl.stringValue.to_s)
