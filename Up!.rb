@@ -27,11 +27,16 @@ class Up < NSWindowController
     # original picture
     attr_accessor :pictureData
     # max width or height in pixels -- bound to a slider
-    attr_accessor :pictureSize
+    attr_reader :pictureSize
     # the picture quality (only used for JPEG or JPEG2000 format)
     attr_accessor :pictureQuality
     attr_accessor :pictureSharpen
     attr_accessor :pictureContrast
+    
+    def pictureSize=(s)
+    	s = 100 if s.to_i < 100
+    	@pictureSize = s
+    end
     
     ib_action :windowShouldClose do |sender|
         NSApp.stop(self)
