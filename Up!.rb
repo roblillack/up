@@ -13,18 +13,18 @@
 
 require 'rubygems'
 require 'digest/md5'
-require 'hpricot'
+#require 'hpricot'
 require 'open-uri'
 require 'pp'
 require 'xmlrpc/client'
 
 class Up < NSWindowController
-	ib_outlets :mainWindow, :inputUrl, :inputUsername, :inputPassword,
-	           :picture, :progress, :uploadButton, :fileName, :addRemoveBlogConfigurationControl,
-			   :blogConfigurationList, :blogConfigurationController, :blogIdController,
-			   :settingsProgress, :settingsPanel, :imageWell,
-               :blogAccountSelector,
-               :pictureQualityPercentLabel, :pictureSizeSlider, :pictureSizeLabel
+	ib_outlet :mainWindow, :inputUrl, :inputUsername, :inputPassword,
+	          :picture, :progress, :uploadButton, :fileName, :addRemoveBlogConfigurationControl,
+			  :blogConfigurationList, :blogConfigurationController, :blogIdController,
+			  :settingsProgress, :settingsPanel, :imageWell,
+              :blogAccountSelector,
+              :pictureQualityPercentLabel, :pictureSizeSlider, :pictureSizeLabel
 	attr_accessor :settingsShown, :filePath
 
     # original picture
@@ -118,24 +118,24 @@ class Up < NSWindowController
 	# or false if no XMLRPC service could be found.
 	def checkBlogURL(url)
 		puts ">> #{url}"
-		doc = Hpricot(open(url))
+		###doc = Hpricot(open(url))
 		
 		# looks like XML-RPC
-		return url if ((doc/'methodresponse').size == 1)
+		###return url if ((doc/'methodresponse').size == 1)
 		
 		# looks like RSD
-		(doc/'/rsd//api[@name="MetaWeblog"]').each do |e|
-			return checkBlogURL(e['apilink'])
-		end
+		###(doc/'/rsd//api[@name="MetaWeblog"]').each do |e|
+		###	return checkBlogURL(e['apilink'])
+		###end
 
 		# ok, it's a HTML document. go, search the RSD specification!		
-		(doc/'/html/head/link[@rel="EditURI"]').each do |e|
-			return checkBlogURL(e['href'])
-		end
+		###(doc/'/html/head/link[@rel="EditURI"]').each do |e|
+		###	return checkBlogURL(e['href'])
+		###end
 
 		# special cases
 		# Wordpress sends a plaintext message :(
-		return url if doc.to_s.strip[/^.*XML[-]RPC.*$/]
+		###return url if doc.to_s.strip[/^.*XML[-]RPC.*$/]
 		
 		return false
 	end

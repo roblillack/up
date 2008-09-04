@@ -6,9 +6,9 @@
 #  Copyright (c) 2008 burningsoda.com. All rights reserved.
 #
 
-require 'osx/cocoa'
+framework 'Cocoa'
 
-class PreviewView <  OSX::NSView
+class PreviewView <  NSView
 
   def setImage(image)
     @image = image

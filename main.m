@@ -7,9 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <RubyCocoa/RBRuntime.h>
+#import <MacRuby/MacRuby.h>
 
-int main(int argc, const char *argv[])
+int main(int argc, char *argv[])
 {
-    return RBApplicationMain("rb_main.rb", argc, argv);
+    return macruby_main("rb_main.rb", argc, argv);
 }
