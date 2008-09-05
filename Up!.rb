@@ -11,9 +11,11 @@
 # - content array binden an Preferences.values.<key>
 # - [x] handles content as compound value!!! (sonst kein sichern moeglich)
 
-require 'rubygems'
+### NOTE: hpricot disabled, search for ### to switch it back on …
+
+###require 'rubygems'
 require 'digest/md5'
-#require 'hpricot'
+###require 'hpricot'
 require 'open-uri'
 require 'pp'
 require 'xmlrpc/client'
@@ -36,8 +38,28 @@ class Up < NSWindowController
     attr_accessor :pictureSharpen
     attr_accessor :pictureContrast
     
-    def pictureSize=(s)
-    	s = 100 if s.to_i < 100
+    def setPictureData(data)
+        self.pictureData = data
+    end
+    
+    def setPictureSharpen(s)
+        s = s.floatValue if s.is_a? NSNumber
+        self.pictureSharpen = s
+    end
+
+    def setPictureContrast(c)
+        c = c.floatValue if c.is_a? NSNumber
+        self.pictureContrast = c
+    end
+    
+    def setPictureQuality(q)
+        q = q.floatValue if q.is_a? NSNumber
+        self.pictureQuality = q
+    end
+
+    def setPictureSize(s)
+        s = s.intValue if s.is_a? NSNumber
+    	s = 100 if s < 100
     	@pictureSize = s
     end
     
@@ -46,18 +68,22 @@ class Up < NSWindowController
         true
     end
 	
-	ib_action :showSettings
-	def showSettings(sender)
-		OSX::NSApp.beginSheet_modalForWindow_modalDelegate_didEndSelector_contextInfo_(
-			@settingsPanel, @mainWindow, self, nil, nil
-		)
+	ib_action :showSettings do |sender|
+		NSApp.beginSheet @settingsPanel,
+              modalForWindow: @mainWindow,
+              modalDelegate: self,
+              didEndSelector: 'didHideSettings',
+              contextInfo: nil
 	end
     
-    ib_action :hideSettings
-	def hideSettings(sender)
+    ib_action :hideSettings do |sender|
 		@settingsPanel.orderOut(@settingsPanel)
-		OSX::NSApp.endSheet(@settingsPanel)
+		NSApp.endSheet(@settingsPanel)
 	end
+    
+    def didHideSettings
+        puts "Settings hidden."
+    end
     
     def applicationWillUnhide(notification)
         puts 'Application will unhide.'
@@ -70,10 +96,14 @@ class Up < NSWindowController
     def applicationWillTerminate(notification)
         puts 'Application will terminate.'
         
-        @cfg.setInteger_forKey(@pictureSize, "pictureSize")
-        @cfg.setFloat_forKey(@pictureQuality, "pictureQuality")
-        @cfg.setFloat_forKey(@pictureSharpen, "pictureSharpen")
-        @cfg.setFloat_forKey(@pictureContrast, "pictureContrast")
+        @cfg.setInteger @pictureSize,
+             forKey: "pictureSize"
+        @cfg.setFloat @pictureQuality,
+             forKey: "pictureQuality"
+        @cfg.setFloat @pictureSharpen,
+             forKey: "pictureSharpen"
+        @cfg.setFloat @pictureContrast,
+             forKey: "pictureContrast"
     end
     
     def applicationShouldTerminate(sender)
@@ -81,7 +111,9 @@ class Up < NSWindowController
         return true
     end
 	
-	def initialize
+    def awakeFromNib
+        puts 'I\'m awake now.'
+        
 		puts "Initializing Controller “Up”"
         @cfg = NSUserDefaultsController.sharedUserDefaultsController.defaults
 
@@ -93,11 +125,7 @@ class Up < NSWindowController
         @outputData = nil
         # a preview window
         @previewWindow = nil
-   	end
-    
-    def awakeFromNib
-        puts 'I\'m awake now.'
-                
+        
         # will set up the percent label and stuff
         updatePreview
     end
@@ -140,8 +168,8 @@ class Up < NSWindowController
 		return false
 	end
     
-    ib_action :checkBlogIds
-	def checkBlogIds(sender = nil)
+    ib_action :checkBlogIds do |sender|
+	###def checkBlogIds(sender = nil)
 		# first, check the blog url
 		return if @inputUrl.stringValue.to_s == nil or @inputUrl.stringValue.to_s.strip == ''
 		if @oldURL != @inputUrl.stringValue.to_s.strip then
@@ -183,8 +211,7 @@ class Up < NSWindowController
 		@settingsProgress.stopAnimation(self)
 	end
 	
-    ib_action :addRemoveBlogConfiguration
-	def addRemoveBlogConfiguration(sender = nil)
+    ib_action :addRemoveBlogConfiguration do |sender|
 		if @addRemoveBlogConfigurationControl.selectedSegment == 0 then
 			arrayObject = {	'title' => 'New Profile', 'url' => 'http://',
 							'type' => 0,
@@ -198,12 +225,11 @@ class Up < NSWindowController
 		end
 	end
 	
-    def alertDidEnd_returnCode_contextInfo(alert, returnCode, contextInfo)
+    def alertDidEnd alert, returnCode:returnCode, contextInfo:contextInfo
         alert.release
     end
     
-    ib_action :uploadPicture
-	def uploadPicture(sender)
+    ib_action :uploadPicture do |sender|
 		# nothing dragged here, eh?
 		return unless @pictureData
 		
@@ -261,15 +287,15 @@ class Up < NSWindowController
         @progress.stopAnimation(self)
         
         # open up some alert sheet, and tell the user about the result
-		alert = OSX::NSAlert.alloc.init
+		alert = NSAlert.alloc.init
 		alert.addButtonWithTitle("OK")
         if result.key? 'error' then
-            alert.setMessageText('Error uploading file.')
-            alert.setInformativeText(result['error'])
-            NSApp.requestUserAttention(NSCriticalRequest)
+            alert.messageText = 'Error uploading file.'
+            alert.informativeText = result['error']
+            NSApp.requestUserAttention(:NSCriticalRequest)
         elsif not result.key? 'url' then
             alert.setMessageText('Error uploading file.')
-            NSApp.requestUserAttention(NSCriticalRequest)
+            NSApp.requestUserAttention(:NSCriticalRequest)
             alert.setInformativeText('No URL in server response.')
         else
             alert.setMessageText('File successfully uploaded.')
@@ -293,7 +319,7 @@ class Up < NSWindowController
 	# this method applies all necessary CI filters to the given image and returns
 	# the result (still, no rendering takes place)
 	def processImage(inputImage, highScalingQuality = true)
-        maxSize = @pictureSize.to_i
+        maxSize = @pictureSize
 		
         # calculate the new width and height
         oldWidth = CGRectGetWidth(inputImage.extent)
@@ -320,42 +346,42 @@ class Up < NSWindowController
     		 	trans.scaleBy(scaleFactor / 0.6)
         		preScaleFilter = CIFilter.filterWithName("CIAffineTransform")
         		preScaleFilter.setDefaults
-        		preScaleFilter.setValue_forKey(inputImage, "inputImage")
-	        	preScaleFilter.setValue_forKey(trans, "inputTransform")
+        		preScaleFilter.setValue inputImage, forKey: "inputImage"
+	        	preScaleFilter.setValue trans, forKey: "inputTransform"
 		        
 		        scaleFilter = CIFilter.filterWithName("CILanczosScaleTransform")
     		    scaleFilter.setDefaults()
-        		scaleFilter.setValue_forKey(preScaleFilter.valueForKey("outputImage"), "inputImage")
-        		scaleFilter.setValue_forKey(NSNumber.numberWithDouble(0.6), "inputScale")
+        		scaleFilter.setValue preScaleFilter.valueForKey("outputImage"), forKey: "inputImage"
+        		scaleFilter.setValue NSNumber.numberWithDouble(0.6), forKey: "inputScale"
         	else
 		        scaleFilter = CIFilter.filterWithName("CILanczosScaleTransform")
     		    scaleFilter.setDefaults()
-        		scaleFilter.setValue_forKey(inputImage, "inputImage")
-        		scaleFilter.setValue_forKey(NSNumber.numberWithDouble(scaleFactor), "inputScale")
+        		scaleFilter.setValue inputImage, forKey: "inputImage"
+        		scaleFilter.setValue NSNumber.numberWithDouble(scaleFactor), forKey: "inputScale"
         	end
         else
 	        scaleFilter = CIFilter.filterWithName("CIAffineTransform")
     	    scaleFilter.setDefaults()
-        	scaleFilter.setValue_forKey(inputImage, "inputImage")
+        	scaleFilter.setValue inputImage, forKey: "inputImage"
 	        trans = NSAffineTransform.transform
     	 	trans.scaleBy(scaleFactor)
-        	scaleFilter.setValue_forKey(trans, "inputTransform")
+        	scaleFilter.setValue trans, forKey: "inputTransform"
         end
         
         sharpenFilter = CIFilter.filterWithName("CISharpenLuminance")
         sharpenFilter.setDefaults()
-        sharpenFilter.setValue_forKey(@pictureSharpen, "inputSharpness")
-        sharpenFilter.setValue_forKey(scaleFilter.valueForKey("outputImage"), "inputImage")
+        sharpenFilter.setValue NSNumber.numberWithFloat(@pictureSharpen), forKey: "inputSharpness"
+        sharpenFilter.setValue scaleFilter.valueForKey("outputImage"), forKey: "inputImage"
 
-        contrastFilter = OSX::CIFilter.filterWithName("CIColorControls")
+        contrastFilter = CIFilter.filterWithName("CIColorControls")
         contrastFilter.setDefaults()
-        contrastFilter.setValue_forKey(@pictureContrast, "inputContrast")
-        contrastFilter.setValue_forKey(sharpenFilter.valueForKey("outputImage"), "inputImage")
+        contrastFilter.setValue NSNumber.numberWithFloat(@pictureContrast), forKey: "inputContrast"
+        contrastFilter.setValue sharpenFilter.valueForKey("outputImage"), forKey: "inputImage"
         
-		cropFilter = CIFilter.filterWithName_("CICrop")
+		cropFilter = CIFilter.filterWithName("CICrop")
         cropFilter.setDefaults()
-		cropFilter.setValue_forKey_(CIVector.vectorWithX_Y_Z_W(2.0, 2.0, newWidth, newHeight), "inputRectangle")
-		cropFilter.setValue_forKey_(contrastFilter.valueForKey("outputImage"), "inputImage")
+		cropFilter.setValue CIVector.vectorWithX(2.0, Y:2.0, Z:newWidth, W:newHeight), forKey: "inputRectangle"
+		cropFilter.setValue contrastFilter.valueForKey("outputImage"), forKey: "inputImage"
         
         @outputWidth = newWidth
         @outputHeight = newHeight
@@ -369,7 +395,7 @@ class Up < NSWindowController
 		updatePreview(false)
 	end
 	
-	def windowWillResize_toSize(window, proposedSize)
+	def windowWillResize window, toSize:proposedSize
 		return proposedSize unless window == @previewWindow
 		# to prevent double updating
 		@userIsResizing = true
@@ -390,35 +416,42 @@ class Up < NSWindowController
 	end
 	
 	# shows or updates the Preview Window
-	ib_action :updatePreview
-	def updatePreview(skipEncodeDecode = true)
+    ib_action :updatePreview do |sender|
+        self.updatePreview
+    end
+    
+    def updatePreview(skipEncodeDecode = true)
+        ###skipEncodeDecode = true
 		@pictureQualityPercentLabel.setStringValue("#{(@pictureQuality.to_f*100).round}%")
-		@pictureSizeLabel.setStringValue("#{@pictureSize.to_i}px")
-		if @pictureSizeSlider.intValue != @pictureSize.to_i then
-			@pictureSizeSlider.setIntValue(@pictureSize.to_i)
+		@pictureSizeLabel.setStringValue("#{@pictureSize}px")
+		if @pictureSizeSlider.intValue != @pictureSize then
+			@pictureSizeSlider.setIntValue(@pictureSize)
 		end
 		return unless @pictureData
 		@processedImage = processImage(self.getInputImage, !skipEncodeDecode)
 		
 		if not skipEncodeDecode then
 			# create a bitmap to render into
-    	    outputBitmap = NSBitmapImageRep.alloc.initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel(
-        	    nil, @outputWidth, @outputHeight, 8, 4, true, false, OSX::NSCalibratedRGBColorSpace, 0, 0
-        	)
+    	    outputBitmap = NSBitmapImageRep.alloc.initWithBitmapDataPlanes nil,
+                                                  pixelsWide: @outputWidth,
+                                                  pixelsHigh: @outputHeight,
+                                                  bitsPerSample: 8,
+                                                  samplesPerPixel: 4,
+                                                  hasAlpha: true,
+                                                  isPlanar: false,
+                                                  colorSpaceName: NSCalibratedRGBColorSpace,
+                                                  bytesPerRow: 0,
+                                                  bitsPerPixel: 0
 	        # render the CIImage into the BitmapImageRep
     	    outputContext = NSGraphicsContext.graphicsContextWithBitmapImageRep(outputBitmap).CIContext
-        	outputContext.drawImage_atPoint_fromRect(
-	        	@processedImage,
-    	    	CGPointMake(0, 0), @processedImage.extent
-        		#CGRectMake(0, 0, @outputWidth, @outputHeight)
-	        )
+        	outputContext.drawImage @processedImage,
+                          atPoint: CGPointMake(0, 0),
+                          fromRect: @processedImage.extent
 
 			# convert the bitmap into the wanted output format
-    	    @outputData = outputBitmap.representationUsingType_properties(
-	        	NSJPEGFileType,
-    	    	{NSImageCompressionFactor => @pictureQuality,
-    	    	 NSImageProgressive => NSNumber.numberWithBool(true)}
-	        )
+    	    @outputData = outputBitmap.representationUsingType NSJPEGFileType,
+                                       properties: { NSImageCompressionFactor => NSNumber.numberWithFloat(@pictureQuality),
+                                                    NSImageProgressive => NSNumber.numberWithBool(true) }
 		end
 		
 	    # show a preview window
@@ -429,21 +462,20 @@ class Up < NSWindowController
         	oldFrame = @previewWindow.frame
         	oldContentRect = @previewWindow.contentRectForFrameRect(oldFrame)
         	newFrame = @previewWindow.frameRectForContentRect(
-        		[oldContentRect.x - (contentWidth - oldContentRect.width)/2,
-				 oldContentRect.y - (contentHeight - oldContentRect.height)/2,
+        		[oldContentRect.pointValue.x - (contentWidth - oldContentRect.sizeValue.width)/2,
+				 oldContentRect.pointValue.y - (contentHeight - oldContentRect.sizeValue.height)/2,
 				 contentWidth, contentHeight]
 			)
 			# try to make sure, the window does not leave the screen
-			newFrame = @previewWindow.constrainFrameRect_toScreen(newFrame, @previewWindow.screen)
+			newFrame = @previewWindow.constrainFrameRect(newFrame, toScreen: @previewWindow.screen)
 			# sending setFrame:display: does NOT invoke willResize:toSize:
-        	@previewWindow.setFrame_display(newFrame, true)
+        	@previewWindow.setFrame newFrame,
+                           display: true
         else
-	        @previewWindow = NSWindow.alloc.initWithContentRect_styleMask_backing_defer(
-    	    	[100, 100, contentWidth, contentHeight],
-        		NSTitledWindowMask | NSResizableWindowMask,
-        		NSBackingStoreBuffered,
-	        	false
-	        )
+	        @previewWindow = NSWindow.alloc.initWithContentRect [100, 100, contentWidth, contentHeight],
+                                            styleMask: NSTitledWindowMask | NSResizableWindowMask,
+                                            backing: NSBackingStoreBuffered,
+                                            defer: false
 	        @previewWindow.setPreferredBackingLocation(NSWindowBackingLocationVideoMemory)
 	        @previewWindow.setFrameAutosaveName("preview")
 	        @previewWindow.setDelegate(self)
@@ -469,9 +501,11 @@ class Up < NSWindowController
 	        	# exists, but did not fire yet? good, just postpone it
     	    	@previewTimer.setFireDate(NSDate.dateWithTimeIntervalSinceNow(0.1))
 	        else
-    	    	@previewTimer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats(
-    	    		0.1, self, "finalizePreview:", nil, false
-    	    	)
+    	    	@previewTimer = NSTimer.scheduledTimerWithTimeInterval 0.1,
+                                        target: self,
+                                        selector: "finalizePreview",
+                                        userInfo: nil,
+                                        repeats: false
 	        end
         else
 	        @previewWindow.setTitle("Preview: #{@outputWidth}x#{@outputHeight}px, #{(@outputData.length/102.4).to_i/10.0}KiB")
@@ -504,9 +538,9 @@ class Up < NSWindowController
     end
     
     def copyUrlToPasteboard(url)
-        pboard = OSX::NSPasteboard.generalPasteboard
-        pboard.declareTypes_owner([OSX::NSStringPboardType], self)
-        pboard.setString_forType(url, OSX::NSStringPboardType)
+        pboard = NSPasteboard.generalPasteboard
+        pboard.declareTypes_owner([NSStringPboardType], self)
+        pboard.setString_forType(url, NSStringPboardType)
     end
     
     def getNSImageFromCIImage(ciimage)

@@ -1,11 +1,3 @@
-#
-#  rb_main.rb
-#  MediaUpload
-#
-#  Created by Robert Lillack on 09.12.07.
-#  Copyright (c) 2007 burningsoda.com. All rights reserved.
-#
-
 framework 'Cocoa'
 framework 'QuartzCore'
 

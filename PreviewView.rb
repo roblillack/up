@@ -30,9 +30,13 @@ class PreviewView <  NSView
 	# is not rendered fast enough and the window size did change a LOT.
 	# We try to prevent the window from bein shown with a wrong sized image
     if imageW + 30 != windowW then
-    	context.drawImage_inRect_fromRect(@image, CGRectMake(15, 15, windowW - 30, windowH - 30), @image.extent)
+    	context.drawImage @image,
+                inRect: CGRectMake(15, 15, windowW - 30, windowH - 30),
+                fromRect: @image.extent
     else
-    	context.drawImage_atPoint_fromRect(@image, CGPointMake(15, 15), @image.extent)
+    	context.drawImage @image,
+                atPoint: CGPointMake(15, 15),
+                fromRect: @image.extent
     end
   end
 
