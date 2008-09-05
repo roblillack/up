@@ -462,8 +462,8 @@ class Up < NSWindowController
         	oldFrame = @previewWindow.frame
         	oldContentRect = @previewWindow.contentRectForFrameRect(oldFrame)
         	newFrame = @previewWindow.frameRectForContentRect(
-        		[oldContentRect.pointValue.x - (contentWidth - oldContentRect.sizeValue.width)/2,
-				 oldContentRect.pointValue.y - (contentHeight - oldContentRect.sizeValue.height)/2,
+        		[oldContentRect.pointValue.x - (contentWidth - oldContentRect.size.width)/2,
+				 oldContentRect.pointValue.y - (contentHeight - oldContentRect.size.height)/2,
 				 contentWidth, contentHeight]
 			)
 			# try to make sure, the window does not leave the screen
