@@ -21,7 +21,7 @@ require 'pp'
 require 'xmlrpc/client'
 
 class Up < NSWindowController
-	ib_outlet :mainWindow, :inputUrl, :inputUsername, :inputPassword,
+	attr_writer :mainWindow, :inputUrl, :inputUsername, :inputPassword,
 	          :picture, :progress, :uploadButton, :fileName, :addRemoveBlogConfigurationControl,
 			  :blogConfigurationList, :blogConfigurationController, :blogIdController,
 			  :settingsProgress, :settingsPanel, :imageWell,
@@ -34,41 +34,51 @@ class Up < NSWindowController
     # max width or height in pixels -- bound to a slider
     attr_reader :pictureSize
     # the picture quality (only used for JPEG or JPEG2000 format)
-    attr_accessor :pictureQuality
+    attr_reader :pictureQuality
     attr_accessor :pictureSharpen
     attr_accessor :pictureContrast
     
+    # MARK: -
+    # MARK: KVO support
+    
     def setPictureData(data)
-        self.pictureData = data
+        @pictureData = data
     end
     
     def setPictureSharpen(s)
         s = s.floatValue if s.is_a? NSNumber
-        self.pictureSharpen = s
+        @pictureSharpen = s
     end
 
     def setPictureContrast(c)
         c = c.floatValue if c.is_a? NSNumber
-        self.pictureContrast = c
+        @pictureContrast = c
     end
     
     def setPictureQuality(q)
+        puts "setPictureQuality: "
+        p q
         q = q.floatValue if q.is_a? NSNumber
-        self.pictureQuality = q
+        @pictureQuality = q
+        return
     end
 
     def setPictureSize(s)
         s = s.intValue if s.is_a? NSNumber
     	s = 100 if s < 100
     	@pictureSize = s
+        return
     end
     
-    ib_action :windowShouldClose do |sender|
+    # MARK: -
+    # MARK: Interface Builder support
+    
+    def windowShouldClose(sender)
         NSApp.stop(self)
         true
     end
 	
-	ib_action :showSettings do |sender|
+	 def showSettings(sender)
 		NSApp.beginSheet @settingsPanel,
               modalForWindow: @mainWindow,
               modalDelegate: self,
@@ -76,10 +86,12 @@ class Up < NSWindowController
               contextInfo: nil
 	end
     
-    ib_action :hideSettings do |sender|
+    def hideSettings(sender)
 		@settingsPanel.orderOut(@settingsPanel)
 		NSApp.endSheet(@settingsPanel)
 	end
+    
+    # MARK: -
     
     def didHideSettings
         puts "Settings hidden."
@@ -113,7 +125,6 @@ class Up < NSWindowController
 	
     def awakeFromNib
         puts 'I\'m awake now.'
-        
 		puts "Initializing Controller “Up”"
         @cfg = NSUserDefaultsController.sharedUserDefaultsController.defaults
 
@@ -168,8 +179,7 @@ class Up < NSWindowController
 		return false
 	end
     
-    ib_action :checkBlogIds do |sender|
-	###def checkBlogIds(sender = nil)
+	def checkBlogIds(sender = nil)
 		# first, check the blog url
 		return if @inputUrl.stringValue.to_s == nil or @inputUrl.stringValue.to_s.strip == ''
 		if @oldURL != @inputUrl.stringValue.to_s.strip then
@@ -211,7 +221,7 @@ class Up < NSWindowController
 		@settingsProgress.stopAnimation(self)
 	end
 	
-    ib_action :addRemoveBlogConfiguration do |sender|
+    def addRemoveBlogConfiguration(sender)
 		if @addRemoveBlogConfigurationControl.selectedSegment == 0 then
 			arrayObject = {	'title' => 'New Profile', 'url' => 'http://',
 							'type' => 0,
@@ -229,7 +239,7 @@ class Up < NSWindowController
         alert.release
     end
     
-    ib_action :uploadPicture do |sender|
+    def uploadPicture(sender)
 		# nothing dragged here, eh?
 		return unless @pictureData
 		
@@ -409,14 +419,14 @@ class Up < NSWindowController
 		# and the previewview updated the image by doing a simple scale (stage 1)
 		# we calculate a new picturesize and call stage 2
 		# (which will resize the window to make it pixel-perfect and call stage 3)
-		self.setPictureSize NSNumber.numberWithInt(@previewWindow.contentRectForFrameRect(@previewWindow.frame).size.width - 30)
+		setPictureSize @previewWindow.contentRectForFrameRect(@previewWindow.frame).size.width - 30
 		# the next resize may be someone else(?) again...
 		@userIsResizing = false
 		updatePreview
 	end
 	
 	# shows or updates the Preview Window
-    ib_action :updatePreview do |sender|
+    def updatePreview(sender)
         self.updatePreview
     end
     
