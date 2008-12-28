@@ -8,7 +8,7 @@
 
 framework 'Cocoa'
 
-class PreviewView <  NSView
+class PreviewViewOLD <  NSView
 
   def setImage(image)
     @image = image

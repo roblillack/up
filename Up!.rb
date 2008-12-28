@@ -32,9 +32,9 @@ class Up < NSWindowController
     # original picture
     attr_accessor :pictureData
     # max width or height in pixels -- bound to a slider
-    attr_reader :pictureSize
+    attr_accessor :pictureSize
     # the picture quality (only used for JPEG or JPEG2000 format)
-    attr_reader :pictureQuality
+    attr_accessor :pictureQuality
     attr_accessor :pictureSharpen
     attr_accessor :pictureContrast
     
@@ -56,18 +56,19 @@ class Up < NSWindowController
     end
     
     def setPictureQuality(q)
-        puts "setPictureQuality: "
-        p q
+        #puts "setPictureQuality: "
+        #p q
         q = q.floatValue if q.is_a? NSNumber
         @pictureQuality = q
         return
     end
 
     def setPictureSize(s)
+        #puts "setPictureQuality: "
+        #p s
         s = s.intValue if s.is_a? NSNumber
     	s = 100 if s < 100
     	@pictureSize = s
-        return
     end
     
     # MARK: -
@@ -252,12 +253,12 @@ class Up < NSWindowController
 		@progress.startAnimation(self)
 				
 		# retrieve the selected blog config
-        selected_nsdict = @blogConfigurationController.arrangedObjects.to_a[@blogAccountSelector.indexOfSelectedItem]
+        selected_nsdict = @blogConfigurationController.arrangedObjects[@blogAccountSelector.indexOfSelectedItem]
 
 		# get the output template and replace the first values
 		# as they may change while we upload
 		# (url will be inserted when we know it)
-   		template = selected_nsdict.objectForKey('template').to_s
+   		template = selected_nsdict.objectForKey('template').mutableCopy
    		template.gsub!(/%width%/, "#{@outputWidth}")
 		template.gsub!(/%height%/, "#{@outputHeight}")
         
@@ -276,11 +277,13 @@ class Up < NSWindowController
 
         # and start it
         # ruby threads
-        @workerthread = Thread.new(work) {|w| doHeftyWork(w)}
+        #@workerthread = Thread.new(work) {|w| doHeftyWork(w)}
         # single threaded
         #doHeftyWork(work)
         # cocoa threads (will run single threaded...)
-        #NSThread.detachNewThreadSelector_toTarget_withObject("doHeftyWork:", self, work)
+        NSThread.detachNewThreadSelector "doHeftyWork:",
+                               :toTarget => self,
+                             :withObject => work
     end
     
     # this one's called in the main thread, as soon as the upload thread finished
@@ -496,13 +499,13 @@ class Up < NSWindowController
 	        @previewWindow.setMovableByWindowBackground(true)
 	        imageView = PreviewView.alloc.initWithFrame @previewWindow.frame
     	    @previewWindow.setContentView imageView
-        	@previewWindow.makeKeyAndOrderFront self
+            @previewWindow.makeKeyAndOrderFront self
 	    end
 	    @previewWindow.setContentAspectRatio [@outputWidth+30, @outputHeight+30]
 
         if skipEncodeDecode then
 	        @previewWindow.setTitle("Preview: #{@outputWidth}x#{@outputHeight}px, ...KiB")
-        	@previewWindow.contentView.setImage(getNSImageFromCIImage(@processedImage))
+        	#@previewWindow.contentView.setImage(getNSImageFromCIImage(@processedImage))
         	@previewWindow.contentView.setImage(@processedImage)
 
 	        # setup a timer to display a REAL preview (encoded to the output format, scaled using better quality)
@@ -563,6 +566,7 @@ class Up < NSWindowController
     def getInputImage
     	# pictureData did not change? right, so...
     	if @inputImage != nil and @oldPictureData == @pictureData then
+            p @inputImage
     		return @inputImage
     	end
     	
@@ -576,6 +580,8 @@ class Up < NSWindowController
     	enumerator = @picture.image.representations.objectEnumerator
 	    while r = enumerator.nextObject do
     	    if r.kind_of? NSBitmapImageRep then
+                bitmapRep = r
+                puts "Found Bitmap Representation in File"
         	    break
 	        end
     	end

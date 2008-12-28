@@ -12,6 +12,8 @@
 		4DDCA7080ACC9A6100E082CE /* rb_main.rb in Resources */ = {isa = PBXBuildFile; fileRef = E8F5E25803AEB7C803A81C6F /* rb_main.rb */; };
 		4DDCA70A0ACC9A6100E082CE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		4DDCA70C0ACC9A6100E082CE /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		D404FE840F07818F004EF5B7 /* PreviewView.h in Headers */ = {isa = PBXBuildFile; fileRef = D404FE820F07818F004EF5B7 /* PreviewView.h */; };
+		D404FE850F07818F004EF5B7 /* PreviewView.m in Sources */ = {isa = PBXBuildFile; fileRef = D404FE830F07818F004EF5B7 /* PreviewView.m */; };
 		D41400BC0D0FF57500295A29 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = D41400BB0D0FF57500295A29 /* Credits.html */; };
 		D42584DF0D0CA75C00F443AC /* Up!.rb in Resources */ = {isa = PBXBuildFile; fileRef = D42584DE0D0CA75C00F443AC /* Up!.rb */; };
 		D47523B20D6DF60900BB4F0B /* PreviewView.rb in Resources */ = {isa = PBXBuildFile; fileRef = D47523B10D6DF60900BB4F0B /* PreviewView.rb */; };
@@ -28,6 +30,8 @@
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		4DDCA7110ACC9A6100E082CE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4DDCA7120ACC9A6100E082CE /* Up!.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Up!.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D404FE820F07818F004EF5B7 /* PreviewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreviewView.h; sourceTree = "<group>"; };
+		D404FE830F07818F004EF5B7 /* PreviewView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreviewView.m; sourceTree = "<group>"; };
 		D41400BB0D0FF57500295A29 /* Credits.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		D42584DE0D0CA75C00F443AC /* Up!.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = "Up!.rb"; sourceTree = "<group>"; };
 		D47523B10D6DF60900BB4F0B /* PreviewView.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = PreviewView.rb; sourceTree = "<group>"; };
@@ -54,6 +58,8 @@
 			children = (
 				D42584DE0D0CA75C00F443AC /* Up!.rb */,
 				D47523B10D6DF60900BB4F0B /* PreviewView.rb */,
+				D404FE820F07818F004EF5B7 /* PreviewView.h */,
+				D404FE830F07818F004EF5B7 /* PreviewView.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -133,6 +139,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D404FE840F07818F004EF5B7 /* PreviewView.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,6 +205,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4DDCA70A0ACC9A6100E082CE /* main.m in Sources */,
+				D404FE850F07818F004EF5B7 /* PreviewView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
