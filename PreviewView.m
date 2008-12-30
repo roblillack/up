@@ -20,10 +20,9 @@
 }
 
 - (void) setImage: (CIImage*) img {
-    if (img == nil) return;
+    if (img == image) return;
     [image release];
-    [img retain];
-    image = img;
+    image = [img retain];
     [self setNeedsDisplay: TRUE];
 }
 
@@ -32,10 +31,10 @@
         return;
     }
 
-    int imageW = floor(CGRectGetWidth([image extent]));
+    int imageW = round(CGRectGetWidth([image extent]));
     //int imageH = floor(CGRectGetHeight([image extent]));
-    int windowW = floor([self bounds].size.width);
-    int windowH = floor([self bounds].size.height);
+    int windowW = round([self bounds].size.width);
+    int windowH = round([self bounds].size.height);
 
     CIContext *context = [[NSGraphicsContext currentContext] CIContext];
 

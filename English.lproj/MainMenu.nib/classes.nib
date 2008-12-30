@@ -5,67 +5,18 @@
 	<key>IBClasses</key>
 	<array>
 		<dict>
-			<key>ACTIONS</key>
-			<dict>
-				<key>addRemoveBlogConfiguration</key>
-				<string>id</string>
-				<key>checkBlogIds</key>
-				<string>id</string>
-				<key>hideSettings</key>
-				<string>id</string>
-				<key>showSettings</key>
-				<string>id</string>
-				<key>updatePreview</key>
-				<string>id</string>
-				<key>uploadPicture</key>
-				<string>id</string>
-				<key>windowShouldClose</key>
-				<string>id</string>
-			</dict>
 			<key>CLASS</key>
-			<string>Up</string>
+			<string>UpController</string>
 			<key>LANGUAGE</key>
 			<string>ObjC</string>
 			<key>OUTLETS</key>
 			<dict>
-				<key>addRemoveBlogConfigurationControl</key>
-				<string>id</string>
-				<key>blogAccountSelector</key>
-				<string>id</string>
-				<key>blogConfigurationController</key>
-				<string>id</string>
-				<key>blogConfigurationList</key>
-				<string>id</string>
-				<key>blogIdController</key>
-				<string>id</string>
-				<key>fileName</key>
-				<string>id</string>
-				<key>imageWell</key>
-				<string>id</string>
-				<key>inputPassword</key>
-				<string>id</string>
-				<key>inputUrl</key>
-				<string>id</string>
-				<key>inputUsername</key>
-				<string>id</string>
-				<key>mainWindow</key>
-				<string>id</string>
-				<key>picture</key>
-				<string>id</string>
 				<key>pictureQualityPercentLabel</key>
-				<string>id</string>
+				<string>NSText</string>
 				<key>pictureSizeLabel</key>
-				<string>id</string>
+				<string>NSText</string>
 				<key>pictureSizeSlider</key>
-				<string>id</string>
-				<key>progress</key>
-				<string>id</string>
-				<key>settingsPanel</key>
-				<string>id</string>
-				<key>settingsProgress</key>
-				<string>id</string>
-				<key>uploadButton</key>
-				<string>id</string>
+				<string>NSSlider</string>
 			</dict>
 			<key>SUPERCLASS</key>
 			<string>NSWindowController</string>
