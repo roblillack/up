@@ -38,6 +38,7 @@
 
     IBOutlet NSTextField *pictureSizeLabel;
     IBOutlet NSSlider *pictureSizeSlider;
+    IBOutlet NSSlider *pictureQualitySlider;
     IBOutlet NSTextField *pictureQualityPercentLabel;
     
     IBOutlet NSImageView *imageWell;

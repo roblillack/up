@@ -142,7 +142,9 @@
 }
 
 - (IBAction) updatePreview: (id)sender {
-    [self updatePreviewWithFastRendering: YES];
+    // if the user changed the “compression quality” do the real encoding
+    // process for him to see the resulting picture quality and file size.
+    [self updatePreviewWithFastRendering: !(sender == pictureQualitySlider)];
 }
 
 - (void) updatePreviewWithFastRendering: (BOOL)skipEncodeDecode {

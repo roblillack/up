@@ -24,6 +24,16 @@
 		D4B3E3910E70295F00CA0583 /* MacRuby.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4B3E3900E70295F00CA0583 /* MacRuby.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D4D7F6320F0D247B002894E5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D4D7F62E0F0D247B002894E5 /* XMLRPC.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 8DC2EF5B0486A6940098B216 /* XMLRPC.framework */;
+			remoteInfo = XMLRPC;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -43,6 +53,7 @@
 		D47523B10D6DF60900BB4F0B /* PreviewView.rb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.ruby; path = PreviewView.rb; sourceTree = "<group>"; };
 		D4AEB1F30D6491C1005AA4E5 /* UpLogo.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = UpLogo.icns; path = gfx/UpLogo.icns; sourceTree = "<group>"; };
 		D4B3E3900E70295F00CA0583 /* MacRuby.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MacRuby.framework; path = /Library/Frameworks/MacRuby.framework; sourceTree = "<absolute>"; };
+		D4D7F62E0F0D247B002894E5 /* XMLRPC.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = XMLRPC.xcodeproj; path = libs/xmlrpc/XMLRPC.xcodeproj; sourceTree = "<group>"; };
 		E8F5E25803AEB7C803A81C6F /* rb_main.rb */ = {isa = PBXFileReference; lastKnownFileType = text.script.ruby; path = rb_main.rb; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -103,6 +114,7 @@
 		29B97314FDCFA39411CA2CEA /* Up! */ = {
 			isa = PBXGroup;
 			children = (
+				D4D7F62C0F0D2459002894E5 /* libs */,
 				080E96DDFE201D6D7F000001 /* Classes */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -140,6 +152,22 @@
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D4D7F62C0F0D2459002894E5 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				D4D7F62E0F0D247B002894E5 /* XMLRPC.xcodeproj */,
+			);
+			name = libs;
+			sourceTree = "<group>";
+		};
+		D4D7F62F0F0D247B002894E5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D4D7F6330F0D247B002894E5 /* XMLRPC.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -186,12 +214,28 @@
 			hasScannedForEncodings = 0;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Up! */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D4D7F62F0F0D247B002894E5 /* Products */;
+					ProjectRef = D4D7F62E0F0D247B002894E5 /* XMLRPC.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				4DDCA7030ACC9A6100E082CE /* Up! */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		D4D7F6330F0D247B002894E5 /* XMLRPC.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = XMLRPC.framework;
+			remoteRef = D4D7F6320F0D247B002894E5 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		4DDCA7050ACC9A6100E082CE /* Resources */ = {
@@ -278,6 +322,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/libs/xmlrpc/build/Development\"",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -296,6 +344,10 @@
 				ARCHS = (
 					ppc,
 					i386,
+				);
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/libs/xmlrpc/build/Development\"",
 				);
 				GCC_MODEL_TUNING = G5;
 				INFOPLIST_FILE = Info.plist;
