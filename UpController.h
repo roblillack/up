@@ -70,5 +70,6 @@
            username: (NSString*)username
            password: (NSString*)password
               atUrl: (NSURL*)url;
+- (void) copyToPasteboard: (NSString*)str;
 
 @end
