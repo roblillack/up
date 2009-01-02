@@ -6,6 +6,7 @@
 //  Copyright 2008 burningsoda.com. All rights reserved.
 //
 
+#import <XMLRPC/XMLRPC.h>
 #import <Cocoa/Cocoa.h>
 #import "PreviewView.h"
 
@@ -34,6 +35,8 @@
     // The ImageWell holding the dragged image
     IBOutlet NSImageView *picture;
     
+    IBOutlet NSArrayController *blogConfigurationController;
+    
     IBOutlet NSButton *uploadButton;
 
     IBOutlet NSTextField *pictureSizeLabel;
@@ -60,5 +63,12 @@
 - (void) updatePreviewWithFastRendering: (BOOL)fast;
 - (IBAction) updatePreview: (id)sender;
 - (CIImage*) getInputImage;
+- (IBAction) uploadPicture: (id)sender;
+- (void) uploadData: (NSData*)data
+       withFilename: (NSString*)filename
+       toBlogWithId: (NSString*)blogid
+           username: (NSString*)username
+           password: (NSString*)password
+              atUrl: (NSURL*)url;
 
 @end

@@ -149,8 +149,8 @@
 
 - (void) updatePreviewWithFastRendering: (BOOL)skipEncodeDecode {
     //NSLog(@"updatePreview");
-    [pictureQualityPercentLabel setStringValue:[NSString stringWithFormat:@"%u%%",
-                                                round(pictureQuality*100)]];
+    [pictureQualityPercentLabel setStringValue: [NSString stringWithFormat:@"%u",
+                                                 round(pictureQuality*100)]];
     [pictureSizeLabel setStringValue:[NSString stringWithFormat:@"%upx", pictureSize]];
     
     if ([pictureSizeSlider intValue] != pictureSize) {
@@ -165,26 +165,10 @@
                  withHighScalingQuality: !skipEncodeDecode];
 
     if (skipEncodeDecode == NO) {
-        /*// create a bitmap to render into
-        NSBitmapImageRep *outputBitmap = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes: nil
-                                                                                 pixelsWide: outputWidth
-                                                                                 pixelsHigh: outputHeight
-                                                                              bitsPerSample: 8
-                                                                            samplesPerPixel: 4
-                                                                                   hasAlpha: YES
-                                                                                   isPlanar: NO
-                                                                             colorSpaceName: NSCalibratedRGBColorSpace
-                                                                                bytesPerRow: 0
-                                                                               bitsPerPixel: 32];
-        // render the CIImage into the BitmapImageRep
-        CIContext *outputContext = [[NSGraphicsContext graphicsContextWithBitmapImageRep: outputBitmap] CIContext];
-        [outputContext drawImage: processedImage
-                         atPoint: CGPointMake(0, 0)
-                        fromRect: [processedImage extent]];*/
-        
+        // render the result into a bitmap
         NSBitmapImageRep* outputBitmap = [[NSBitmapImageRep alloc] initWithCIImage: processedImage]; 
         
-        // convert the bitmap into the wanted output format
+        // and convert the bitmap into the wanted output format
         NSDictionary *props = [NSDictionary dictionaryWithObjects: [NSArray arrayWithObjects:
                                                                     [NSNumber numberWithFloat: pictureQuality],
                                                                     [NSNumber numberWithBool: YES],
@@ -353,6 +337,134 @@
     // the next resize may be someone else(?) again...
     userIsResizing = NO;
     [self updatePreviewWithFastRendering: YES];
+}
+
+- (IBAction) uploadPicture: (id)sender {
+    // nothing dragged here, eh?
+    if (!pictureData) {
+        return;
+    }
+    
+    // there's no data to send there or
+    // the timer's still waiting for the final
+    // run, do it now
+    if (!outputData || previewTimer != nil) {
+        [self finalizePreview: previewTimer];
+    }
+        
+    // start the progress bar (how lame)		
+	[progress startAnimation: self];
+        
+    // retrieve the selected blog config
+    NSDictionary *selectedDict = [[blogConfigurationController arrangedObjects] objectAtIndex: [blogAccountSelector indexOfSelectedItem]];
+        
+    // get the output template and replace the first values
+    // as they may change while we upload
+    // (url will be inserted when we know it)
+    //template = selected_nsdict.objectForKey('template').mutableCopy
+   	//template.gsub!(/%width%/, "#{@outputWidth}")
+	//template.gsub!(/%height%/, "#{@outputHeight}")
+        
+    // pack up all the necessary data for the worker thread
+    // i did not use :symbols here because if i choose to use
+    // cocoa threads, this structure will get converted to
+    // a nsdict with strings as keys anyway
+    [self uploadData: outputData
+        withFilename: @"bla.jpg"
+        toBlogWithId: [selectedDict objectForKey: @"active_id"]
+            username: [selectedDict objectForKey: @"username"]
+            password: [selectedDict objectForKey: @"password"]
+               atUrl: [NSURL URLWithString: [selectedDict objectForKey: @"url"]]];
+/*        work = {
+            'url' => selected_nsdict.objectForKey('url').to_s,
+            'blogid' => selected_nsdict.objectForKey('active_id').to_s,
+            'username' => selected_nsdict.objectForKey('username').to_s,
+            'password' => selected_nsdict.objectForKey('password').to_s,
+            'template' => template,
+            'data' => @outputData,
+        }*/
+}
+
+- (void) uploadData: (NSData*)data
+       withFilename: (NSString*)filename
+       toBlogWithId: (NSString*)blogid
+           username: (NSString*)username
+           password: (NSString*)password
+              atUrl: (NSURL*)url {
+    
+    XMLRPCRequest *request = [[XMLRPCRequest alloc] initWithURL: url];
+    XMLRPCConnectionManager *manager = [XMLRPCConnectionManager sharedManager];
+    
+    NSDictionary *dataDict = [NSDictionary dictionaryWithObjects: (id[]){@"image/jpeg", data, filename}
+                                                         forKeys: (id[]){@"type", @"bits", @"name"}
+                                                           count: 3];
+    [request setMethod: @"metaWeblog.newMediaObject"
+        withParameters: [NSArray arrayWithObjects: (id[]){blogid, username, password, dataDict}
+                                            count: 4]];
+    
+    NSLog(@"Request body: %@", [request body]);
+
+    [manager spawnConnectionWithXMLRPCRequest: request delegate: self];
+    [request release];
+//  result['template'] = work['template'].gsub(/%url%/, result['url'])
+}
+
+- (void)request: (XMLRPCRequest *)request didReceiveResponse: (XMLRPCResponse *)response {
+    NSLog(@"Response: %@", [response body]);
+    
+    [progress stopAnimation: self];
+    
+    // open up some alert sheet, and tell the user about the result
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle: @"OK"];
+    
+    NSLog(@"REPONSE: %@", [[response object] valueForKey: @"url"]);
+    
+    // has error || no url
+    if ([response isFault] ||
+        ![[response object] isKindOfClass: [NSDictionary class]] ||
+        ![[response object] valueForKey: @"url"]) {
+        [alert setMessageText: @"Error uploading file."];
+        if ([response isFault]) {
+            [alert setInformativeText: [response faultString]];
+        } else if (![[response object] valueForKey: @"url"]) {
+            [alert setInformativeText: @"No URL in server response."];
+        } else {
+	        [alert setInformativeText: [response valueForKey: @"error"]];
+        }
+        [NSApp requestUserAttention: NSCriticalRequest];
+    } else {
+    	[alert setMessageText: @"File successfully uploaded."];
+        /* not result.key? 'template' or
+         result['template'] == nil or
+         result['template'].length < 1 */
+	    if (YES) {
+        	[alert setInformativeText: [NSString stringWithFormat:
+                                        @"The URL (%@) has been copied to the clipboard.",
+                                        [[response object] valueForKey: @"url"]]];
+            [self copyToPasteboard: [[response object] valueForKey: @"url"]];
+        } else {
+			[alert setInformativeText: @"The filled template has been copied to the pasteboard."];
+            [self copyToPasteboard: @"OJ1oj1oj1o!JO!J1"];
+        }
+	    [NSApp requestUserAttention: NSInformationalRequest];
+    }
+    
+    [alert beginSheetModalForWindow: mainWindow
+                      modalDelegate: self
+                     didEndSelector: @selector(alertDidEnd:returnCode:contextInfo:)
+                        contextInfo: nil];
+}
+
+- (void) copyToPasteboard: (NSString*)str {
+	NSPasteboard *pboard = [NSPasteboard generalPasteboard];
+	[pboard declareTypes: [NSArray arrayWithObject: NSStringPboardType]
+                   owner: self];
+    [pboard setString: str forType: NSStringPboardType];
+}
+
+- (void) alertDidEnd: (NSAlert*)alert returnCode: (NSInteger)returnCode contextInfo: (id)contextInfo {
+	[alert release];
 }
 
 @end
